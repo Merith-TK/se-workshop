@@ -40,24 +40,20 @@ func update(args ...string) error {
 	return nil
 }
 
-// TODO: PATH_TO_STEAM_CMD\steamcmd.exe +login YOUR_ACCOUNT_NAME +workshop_build_item "FULL_PATH_TO\UpdateContainer.vdf" +logoff +quit
-
 func newvdf(path string) (string, error) {
 	bpSbcPath := filepath.Join(path, "bp.sbc")
 	vdfString := ""
 	if _, err := os.Stat(bpSbcPath); err == nil {
 		vdfString = buildVDF(getWorkshopID(bpSbcPath), path)
 		workshopVdfPath := filepath.Join(path, "workshop.vdf")
-		if _, err := os.Stat(workshopVdfPath); os.IsNotExist(err) {
-			file, err := os.Create(workshopVdfPath)
-			if err != nil {
-				return vdfString, err
-			}
-			defer file.Close()
-			_, err = file.WriteString(vdfString)
-			if err != nil {
-				return "", err
-			}
+		file, err := os.OpenFile(workshopVdfPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return vdfString, err
+		}
+		defer file.Close()
+		_, err = file.WriteString(vdfString)
+		if err != nil {
+			return "", err
 		}
 	}
 	return vdfString, nil

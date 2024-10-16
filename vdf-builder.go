@@ -71,7 +71,7 @@ func fetchWorkshopInfo(modPath string) (bool, string, string) {
 	}
 
 	if len(lines) > 0 {
-		return true, lines[0], strings.Join(lines[1:], "\\n")
+		return true, lines[0], strings.Join(lines[1:], "\n")
 	}
 	return false, "", ""
 }
@@ -93,7 +93,7 @@ func fetchChangelog(modPath string) (bool, string) {
 		return false, ""
 	}
 
-	return true, strings.Join(lines, "\\n")
+	return true, strings.Join(lines, "\n")
 }
 
 func getWorkshopID(path string) string {
