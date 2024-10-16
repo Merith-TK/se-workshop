@@ -2,7 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
+	"strings"
+
+	"github.com/Merith-TK/utils/debug"
 )
 
 var (
@@ -13,12 +17,26 @@ func main() {
 	setupSteamCMD()
 
 	flag.Parse()
+	args := []string{}
+	for _, arg := range flag.Args() {
+		if strings.HasSuffix(arg, "\"") && !strings.HasPrefix(arg, "\"") {
+			debug.Print("Trimming quotes from:", arg)
+			args = append(args, strings.TrimSuffix(arg, "\""))
+		} else {
+			args = append(args, arg)
+		}
+	}
+	debug.Print("Args:", args)
 
-	switch flag.Arg(0) {
+	switch args[0] {
 	case "download":
-		steamcmd("+workshop_download_item", "244850", flag.Arg(1), "+quit")
+		steamcmd("+workshop_download_item", "244850", args[1], "+quit")
 	case "login":
-		steamcmd("+login", flag.Arg(1), flag.Arg(2), "+quit")
+		if len(args) > 2 {
+			steamcmd("+login", args[1], args[2], "+quit")
+		} else {
+			steamcmd("+login", args[1], "+quit")
+		}
 		username := flag.Arg(1)
 		filePath := blueprintsDir + "username.txt"
 		file, err := os.Create(filePath)
@@ -32,12 +50,17 @@ func main() {
 			panic(err)
 		}
 	case "update":
-		args := flag.Args()[1:]
-		update(args...)
+		updateargs := args[1:]
+		update(updateargs...)
 	case "build-vdf":
-		println(buildVDF(flag.Arg(1), flag.Arg(2)))
+		workshopid := getWorkshopID(args[1])
+		workshopvdf := buildVDF(workshopid, args[1])
+		println(workshopvdf)
 	case "get-id":
-		println(getWorkshopID(flag.Arg(1)))
+		workshopid := getWorkshopID(args[1])
+		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopid)
+	case "wtf":
+		fmt.Println(args)
 	}
 
 	println()

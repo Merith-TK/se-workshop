@@ -46,7 +46,6 @@ func setupSteamCMD() error {
 }
 
 func steamcmd(args ...string) error {
-
 	usernameFile := filepath.Join(blueprintsDir, "username.txt")
 	if _, err := os.Stat(usernameFile); err == nil {
 		content, err := os.ReadFile(usernameFile)
@@ -55,7 +54,7 @@ func steamcmd(args ...string) error {
 		}
 		args = append([]string{"+login", string(content)}, args...)
 	}
-	log.Println("[SE-Workshop] Running steamcmd with args:", args)
+	log.Println("[SE-Workshop] Running steamcmd with args:\n", args)
 	cmd := exec.Command(steamCMD, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
