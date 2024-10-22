@@ -1,4 +1,4 @@
-package main
+package steam
 
 import (
 	"bytes"
@@ -9,14 +9,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/Merith-TK/utils/archive"
 )
 
 var (
-	steamCMD = filepath.Join(blueprintsDir, ".steamcmd/steamcmd.exe")
+	SteamCMD = os.Getenv("APPDATA") + "\\SpaceEngineers\\.steamcmd"
 )
 
-func setupSteamCMD() error {
-	if _, err := os.Stat(steamCMD); os.IsNotExist(err) {
+func Setup() error {
+	if _, err := os.Stat(filepath.Join(SteamCMD, "steamcmd.exe")); os.IsNotExist(err) {
 		fmt.Println("steamcmd not found, downloading...")
 		resp, err := http.Get("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip")
 		if err != nil {
@@ -35,19 +37,19 @@ func setupSteamCMD() error {
 			return fmt.Errorf("Failed to write steamcmd.zip: %v", err)
 		}
 
-		err = unzip(filepath.Join(os.Getenv("TEMP"), "steamcmd.zip"), filepath.Join(blueprintsDir, ".steamcmd"))
+		err = archive.Unzip(filepath.Join(os.Getenv("TEMP"), "steamcmd.zip"), SteamCMD)
 		if err != nil {
 			return fmt.Errorf("Failed to extract steamcmd.zip: %v", err)
 		}
 
-		fmt.Println("steamcmd downloaded and extracted successfully to", steamCMD)
+		fmt.Println("steamcmd downloaded and extracted successfully to", SteamCMD)
 	}
 
 	return nil
 }
 
-func steamcmd(args ...string) (bytes.Buffer, error) {
-	usernameFile := filepath.Join(blueprintsDir, "username.txt")
+func CMD(args ...string) (bytes.Buffer, error) {
+	usernameFile := filepath.Join(SteamCMD, "username.txt")
 	outputBuffer := bytes.Buffer{}
 	if _, err := os.Stat(usernameFile); err == nil {
 		content, err := os.ReadFile(usernameFile)
@@ -56,8 +58,8 @@ func steamcmd(args ...string) (bytes.Buffer, error) {
 		}
 		args = append([]string{"+login", string(content)}, args...)
 	}
-	log.Println("[SE-Workshop] Running steamcmd with args:\n", args)
-	cmd := exec.Command(steamCMD, args...)
+	log.Println("[SEW] Running steamcmd with args:\n", args)
+	cmd := exec.Command(SteamCMD+"\\steamcmd.exe", args...)
 	cmd.Stdin = os.Stdin
 
 	cmd.Stdout = io.MultiWriter(os.Stdout, &outputBuffer)

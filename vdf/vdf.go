@@ -67,7 +67,7 @@ func Build(item VDFItem) string {
 		vdfContent = append(vdfContent, ` "title"		"`+item.Title+`"`)
 	}
 	if item.Description != "" {
-		vdfContent = append(vdfContent, ` "description"	"`+item.Description+`"`)
+		vdfContent = append(vdfContent, ` "description"		"`+item.Description+`"`)
 	}
 
 	// Fetch changelog from the mod directory

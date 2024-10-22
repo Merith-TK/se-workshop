@@ -1,156 +1,111 @@
 package blueprint
 
 import (
-	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/Merith-TK/se-workshop/shared"
+	"github.com/Merith-TK/se-workshop/vdf" // Assuming vdf package is here
 	"github.com/Merith-TK/utils/debug"
 )
 
+// WorkshopID retrieves the workshop ID for a given path, attempting to fix it if missing
 func WorkshopID(path string) string {
-	if !strings.HasSuffix(path, ".sbc") {
-		path = filepath.Join(path, "bp.sbc")
+	if path == "" {
+		path, _ = os.Getwd()
 	}
 	debug.Print("Getting Workshop ID for", path)
 
-	idcode := extractWorkshopID(path)
-	if idcode == "0" || idcode == "" {
+	// Try to extract the workshop ID from the .sbc file
+	id := extractWorkshopID(path)
+	if id == "0" || id == "" {
 		debug.Print("No Workshop ID found, attempting to fix.")
-		fixWorkshopID(path)              // Try to fix the Workshop ID by checking workshop.vdf
-		idcode = extractWorkshopID(path) // Try extracting the ID again
+		id = fixWorkshopID(path)
 	}
 
-	return idcode
+	return id
 }
 
+// extractWorkshopID scans the provided file for a WorkshopId tag and returns its value
 func extractWorkshopID(path string) string {
-	file, err := os.Open(path)
+	if !strings.HasSuffix(path, ".sbc") {
+		path = filepath.Join(path, "bp.sbc")
+	}
+
+	file, err := os.ReadFile(path)
 	if err != nil {
 		debug.Print("Error opening file:", err)
 		return "0"
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	var idcode string
-	var lines []string
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		debug.Print("Error scanning file:", err)
-		idcode = "0"
+	fileStr := string(file)
+
+	// Find the Workshop ID tag
+	if i := strings.Index(fileStr, "<WorkshopId>"); i != -1 {
+		id := fileStr[i+len("<WorkshopId>") : strings.Index(fileStr[i:], "</WorkshopId>")+i]
+		return id
 	}
 
-	for i, line := range lines {
-		if strings.HasPrefix(line, "      <WorkshopId>") && strings.HasSuffix(line, "</WorkshopId>") {
-			code := strings.TrimPrefix(strings.TrimSuffix(line, "</WorkshopId>"), "      <WorkshopId>")
-			if code != "" && code != "0" {
-				idcode = code
-				break
-			}
-		}
-
-		if strings.HasPrefix(line, "          <Id>") && strings.HasSuffix(line, "</Id>") {
-			if lines[i+1] == "          <ServiceName>Steam</ServiceName>" {
-				code := strings.TrimPrefix(strings.TrimSuffix(line, "</Id>"), "          <Id>")
-
-				if code != "" && code != "0" {
-					idcode = code
-					break
-				}
-			}
+	if i := strings.Index(fileStr, "<WorkshopIds>"); i != -1 {
+		if j := strings.Index(fileStr[i:], "<Id>"); j != -1 {
+			id := fileStr[i+j+len("<Id>") : strings.Index(fileStr[i+j:], "</Id>")+i+j]
+			return id
 		}
 	}
-	return idcode
+
+	return "0"
 }
 
-func fixWorkshopID(path string) {
+// fixWorkshopID attempts to update the .sbc file by reading the WorkshopID from workshop.vdf
+func fixWorkshopID(path string) string {
 	if !strings.HasSuffix(path, ".sbc") {
 		path = filepath.Join(path, "bp.sbc")
 	}
 	debug.Print("Fixing Workshop ID for", path)
 
-	// Check if workshop.vdf exists
+	// Ensure the required files exist
 	workshopVDFPath := filepath.Join(filepath.Dir(path), "workshop.vdf")
-	if _, err := os.Stat(workshopVDFPath); os.IsNotExist(err) {
-		debug.Print("workshop.vdf does not exist")
-		return
+	if !shared.FileExists(workshopVDFPath) || !shared.FileExists(path) {
+		fmt.Println("Required files not found: either bp.sbc or workshop.vdf")
+		return "0"
 	}
 
-	// Check if bp.sbc exists
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		debug.Print("bp.sbc does not exist")
-		return
+	// Attempt to read the Workshop ID from workshop.vdf
+	vdfItem, err := vdf.Read(workshopVDFPath)
+	if err != nil || vdfItem.WorkshopID == "" {
+		debug.Print("Error reading workshop.vdf or no WorkshopID found")
+		return "0"
 	}
 
-	// Check if bp.sbc has a workshop ID
-	workshopID := extractWorkshopID(path)
-	workshopID = strings.TrimSpace(workshopID)
-	if workshopID != "0" && workshopID != "" {
-		debug.Print("bp.sbc already has a workshop ID: " + workshopID)
-		return
-	}
-
-	// Read workshop ID from workshop.vdf
-	file, err := os.Open(workshopVDFPath)
-	if err != nil {
-		debug.Print("Error opening workshop.vdf:", err)
-		return
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	var workshopIDFromVDF string
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, ` "publishedfileid"`) {
-			workshopIDFromVDF = strings.Trim(line[len(` "publishedfileid"`)+1:], `"`)
-			break
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		debug.Print("Error scanning workshop.vdf:", err)
-		return
-	}
-
-	if workshopIDFromVDF == "" {
-		debug.Print("No workshop ID found in workshop.vdf")
-		return
-	}
-
-	// Read bp.sbc content
 	content, err := os.ReadFile(path)
 	if err != nil {
-		debug.Print("Error reading bp.sbc:", err)
-		return
+		debug.Print("Error opening file:", err)
+		return "0"
 	}
 
-	// Replace the end of the file with the new workshop ID
 	newContent := strings.Replace(string(content),
 		`      <Points>0</Points>
 	</ShipBlueprint>
   </ShipBlueprints>
 </Definitions>`,
-		`	   <Points>0</Points>
+		`      <Points>0</Points>
       <WorkshopIds>
-		<WorkshopId>
-		  <Id>`+workshopIDFromVDF+`</Id>
-		  <ServiceName>Steam</ServiceName>
-		</WorkshopId>
-	  </WorkshopIds>
+        <WorkshopId>
+          <Id>`+vdfItem.WorkshopID+`</Id>
+          <ServiceName>Steam</ServiceName>
+        </WorkshopId>
+      </WorkshopIds>
 	</ShipBlueprint>
   </ShipBlueprints>
 </Definitions>`, 1)
 
-	// Write the new content back to bp.sbc
 	err = os.WriteFile(path, []byte(newContent), 0644)
 	if err != nil {
-		debug.Print("Error writing to bp.sbc:", err)
-		return
-	}
+		debug.Print("Error writing to file:", err)
+		return "0"
 
-	debug.Print("Successfully updated bp.sbc with workshop ID: " + workshopIDFromVDF)
+	}
+	return vdfItem.WorkshopID
 }
