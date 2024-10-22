@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Merith-TK/se-workshop/workshop/blueprint"
+
 	"github.com/Merith-TK/utils/debug"
 )
 
@@ -25,37 +27,15 @@ func update(args ...string) error {
 		}
 
 		if fileinfo.IsDir() {
+			steamcmd("+workshop_build_item", filepath.Join(fullpath, "workshop.vdf"), "+quit")
 			bpSbcPath := filepath.Join(fullpath, "bp.sbc")
 			if _, err := os.Stat(bpSbcPath); err == nil {
-				newvdf(fullpath)
-			} else {
-				continue
+				blueprint.WorkshopID(fullpath)
 			}
 
-			steamcmd("+workshop_build_item", filepath.Join(fullpath, "workshop.vdf"), "+quit")
-			fixWorkshopID(fullpath)
 		}
 
 	}
 
 	return nil
-}
-
-func newvdf(path string) (string, error) {
-	bpSbcPath := filepath.Join(path, "bp.sbc")
-	vdfString := ""
-	if _, err := os.Stat(bpSbcPath); err == nil {
-		vdfString = buildVDF(getWorkshopID(bpSbcPath), path)
-		workshopVdfPath := filepath.Join(path, "workshop.vdf")
-		file, err := os.OpenFile(workshopVdfPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		if err != nil {
-			return vdfString, err
-		}
-		defer file.Close()
-		_, err = file.WriteString(vdfString)
-		if err != nil {
-			return "", err
-		}
-	}
-	return vdfString, nil
 }

@@ -1,4 +1,4 @@
-package main
+package blueprint
 
 import (
 	"bufio"
@@ -9,99 +9,23 @@ import (
 	"github.com/Merith-TK/utils/debug"
 )
 
-var vdfTemplate = []string{
-	`"workshopitem"`,
-	`{`,
-	` "appid"		"244850"`,
-	` "publishedfileid"	"{WORKSHOP_ID}"`,
-	` "contentfolder"	"{MODPATH}"`,
-	` "visibility"		"0"`,
-	` "previewfile"		"{MODPATH}\thumb.png"`,
-}
-
-func buildVDF(workshopID, modPath string) string {
-	absPath, err := filepath.Abs(modPath)
-	if err != nil {
-		return ""
-	}
-
-	// Basic VDF template
-	newVDF := vdfTemplate
-	for i, line := range newVDF {
-		newVDF[i] = strings.Replace(line, "{WORKSHOP_ID}", workshopID, -1)
-		newVDF[i] = strings.Replace(newVDF[i], "{MODPATH}", absPath, -1)
-	}
-
-	// Fetch workshop info
-	foundWork, title, desc := fetchWorkshopInfo(modPath)
-	debug.Print("Locating Workshop Info at", modPath, ":", foundWork, title, desc)
-	if foundWork {
-		newVDF = append(newVDF, ` "title"		"`+title+`"`)
-		newVDF = append(newVDF, ` "description"		"`+desc+`"`)
-	}
-
-	// Fetch changelog
-	foundChangelog, changelog := fetchChangelog(modPath)
-	debug.Print("Locating Changelog at", modPath, ":", foundChangelog, changelog)
-	if foundChangelog {
-		newVDF = append(newVDF, ` "changenote"		"`+changelog+`"`)
-	}
-
-	// Append final lines
-	newVDF = append(newVDF, `}`)
-	return strings.Join(newVDF, "\n")
-}
-
-func fetchWorkshopInfo(modPath string) (bool, string, string) {
-	infoFilePath := filepath.Join(modPath, "info.txt")
-	debug.Print("Fetching Workshop Info at", infoFilePath)
-	file, err := os.Open(infoFilePath)
-	if err != nil {
-		return false, "", ""
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	var lines []string
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		return false, "", ""
-	}
-
-	if len(lines) > 0 {
-		return true, lines[0], strings.Join(lines[1:], "\n")
-	}
-	return false, "", ""
-}
-
-func fetchChangelog(modPath string) (bool, string) {
-	changelogFilePath := filepath.Join(modPath, "changelog.txt")
-	file, err := os.Open(changelogFilePath)
-	if err != nil {
-		return false, ""
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	var lines []string
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		return false, ""
-	}
-
-	return true, strings.Join(lines, "\n")
-}
-
-func getWorkshopID(path string) string {
+func WorkshopID(path string) string {
 	if !strings.HasSuffix(path, ".sbc") {
 		path = filepath.Join(path, "bp.sbc")
 	}
 	debug.Print("Getting Workshop ID for", path)
 
+	idcode := extractWorkshopID(path)
+	if idcode == "0" || idcode == "" {
+		debug.Print("No Workshop ID found, attempting to fix.")
+		fixWorkshopID(path)              // Try to fix the Workshop ID by checking workshop.vdf
+		idcode = extractWorkshopID(path) // Try extracting the ID again
+	}
+
+	return idcode
+}
+
+func extractWorkshopID(path string) string {
 	file, err := os.Open(path)
 	if err != nil {
 		debug.Print("Error opening file:", err)
@@ -163,10 +87,10 @@ func fixWorkshopID(path string) {
 	}
 
 	// Check if bp.sbc has a workshop ID
-	workshopID := getWorkshopID(path)
+	workshopID := extractWorkshopID(path)
 	workshopID = strings.TrimSpace(workshopID)
 	if workshopID != "0" && workshopID != "" {
-		debug.Print("bp.sbc already has a workshop ID:" + workshopID)
+		debug.Print("bp.sbc already has a workshop ID: " + workshopID)
 		return
 	}
 
@@ -228,5 +152,5 @@ func fixWorkshopID(path string) {
 		return
 	}
 
-	debug.Print("Successfully updated bp.sbc with workshop ID:", workshopIDFromVDF)
+	debug.Print("Successfully updated bp.sbc with workshop ID: " + workshopIDFromVDF)
 }

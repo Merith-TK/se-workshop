@@ -7,9 +7,17 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Merith-TK/se-workshop/workshop/blueprint"
+	"github.com/Merith-TK/se-workshop/workshop/vdf"
 	"github.com/Merith-TK/utils/debug"
+	"github.com/spf13/cobra"
 )
 
+var rootCmd = &cobra.Command{
+	Use:   "workshop",
+	Short: "A tool for managing Space Engineers blueprints",
+	Long:  `A CLI tool to manage Space Engineers blueprints and interact with the Steam Workshop.`,
+}
 var (
 	blueprintsDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\Blueprints\\local\\"
 	commands      = map[string]string{
@@ -63,17 +71,15 @@ func main() {
 
 	switch args[0] {
 	case "build-vdf":
-		workshopid := getWorkshopID(args[1])
-		workshopvdf := buildVDF(workshopid, args[1])
+		workshopid := blueprint.WorkshopID(args[1])
+		workshopvdf := vdf.BuildVDF(workshopid, args[1])
 		println(workshopvdf)
 	case "download":
 		steamcmd("+workshop_download_item", "244850", args[1], "+quit")
-	case "fix-bp":
-		fixWorkshopID(args[1])
 	case "folder":
 		println(blueprintsDir)
 	case "get-id":
-		workshopid := getWorkshopID(args[1])
+		workshopid := blueprint.WorkshopID(args[1])
 		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopid)
 	case "help":
 		printHelp()
