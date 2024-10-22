@@ -13,12 +13,14 @@ import (
 var (
 	blueprintsDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\Blueprints\\local\\"
 	commands      = map[string]string{
+		"build-vdf":  "Build a VDF file from workshop ID.",
 		"download":   "Download a workshop item.",
+		"fix-bp":     "Fix a blueprint with a missing workshop ID.",
+		"folder":     "Print the blueprints folder path.",
+		"get-id":     "Get the workshop ID for a blueprint.",
 		"help":       "Display this help message.",
 		"login":      "Login to Steam.",
 		"update":     "Update blueprints.",
-		"build-vdf":  "Build a VDF file from workshop ID.",
-		"get-id":     "Get the workshop ID for a blueprint.",
 		"vent-steam": "Stop and start Steam.",
 	}
 )
@@ -66,6 +68,10 @@ func main() {
 		println(workshopvdf)
 	case "download":
 		steamcmd("+workshop_download_item", "244850", args[1], "+quit")
+	case "fix-bp":
+		fixWorkshopID(args[1])
+	case "folder":
+		println(blueprintsDir)
 	case "get-id":
 		workshopid := getWorkshopID(args[1])
 		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopid)

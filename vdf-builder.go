@@ -142,3 +142,91 @@ func getWorkshopID(path string) string {
 	}
 	return idcode
 }
+
+func fixWorkshopID(path string) {
+	if !strings.HasSuffix(path, ".sbc") {
+		path = filepath.Join(path, "bp.sbc")
+	}
+	debug.Print("Fixing Workshop ID for", path)
+
+	// Check if workshop.vdf exists
+	workshopVDFPath := filepath.Join(filepath.Dir(path), "workshop.vdf")
+	if _, err := os.Stat(workshopVDFPath); os.IsNotExist(err) {
+		debug.Print("workshop.vdf does not exist")
+		return
+	}
+
+	// Check if bp.sbc exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		debug.Print("bp.sbc does not exist")
+		return
+	}
+
+	// Check if bp.sbc has a workshop ID
+	workshopID := getWorkshopID(path)
+	workshopID = strings.TrimSpace(workshopID)
+	if workshopID != "0" && workshopID != "" {
+		debug.Print("bp.sbc already has a workshop ID:" + workshopID)
+		return
+	}
+
+	// Read workshop ID from workshop.vdf
+	file, err := os.Open(workshopVDFPath)
+	if err != nil {
+		debug.Print("Error opening workshop.vdf:", err)
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var workshopIDFromVDF string
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, ` "publishedfileid"`) {
+			workshopIDFromVDF = strings.Trim(line[len(` "publishedfileid"`)+1:], `"`)
+			break
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		debug.Print("Error scanning workshop.vdf:", err)
+		return
+	}
+
+	if workshopIDFromVDF == "" {
+		debug.Print("No workshop ID found in workshop.vdf")
+		return
+	}
+
+	// Read bp.sbc content
+	content, err := os.ReadFile(path)
+	if err != nil {
+		debug.Print("Error reading bp.sbc:", err)
+		return
+	}
+
+	// Replace the end of the file with the new workshop ID
+	newContent := strings.Replace(string(content),
+		`      <Points>0</Points>
+	</ShipBlueprint>
+  </ShipBlueprints>
+</Definitions>`,
+		`	   <Points>0</Points>
+      <WorkshopIds>
+		<WorkshopId>
+		  <Id>`+workshopIDFromVDF+`</Id>
+		  <ServiceName>Steam</ServiceName>
+		</WorkshopId>
+	  </WorkshopIds>
+	</ShipBlueprint>
+  </ShipBlueprints>
+</Definitions>`, 1)
+
+	// Write the new content back to bp.sbc
+	err = os.WriteFile(path, []byte(newContent), 0644)
+	if err != nil {
+		debug.Print("Error writing to bp.sbc:", err)
+		return
+	}
+
+	debug.Print("Successfully updated bp.sbc with workshop ID:", workshopIDFromVDF)
+}

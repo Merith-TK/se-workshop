@@ -33,6 +33,7 @@ func update(args ...string) error {
 			}
 
 			steamcmd("+workshop_build_item", filepath.Join(fullpath, "workshop.vdf"), "+quit")
+			fixWorkshopID(fullpath)
 		}
 
 	}

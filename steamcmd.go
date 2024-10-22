@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -45,19 +46,22 @@ func setupSteamCMD() error {
 	return nil
 }
 
-func steamcmd(args ...string) error {
+func steamcmd(args ...string) (bytes.Buffer, error) {
 	usernameFile := filepath.Join(blueprintsDir, "username.txt")
+	outputBuffer := bytes.Buffer{}
 	if _, err := os.Stat(usernameFile); err == nil {
 		content, err := os.ReadFile(usernameFile)
 		if err != nil {
-			return fmt.Errorf("Failed to read username.txt: %v", err)
+			return outputBuffer, fmt.Errorf("Failed to read username.txt: %v", err)
 		}
 		args = append([]string{"+login", string(content)}, args...)
 	}
 	log.Println("[SE-Workshop] Running steamcmd with args:\n", args)
 	cmd := exec.Command(steamCMD, args...)
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+
+	cmd.Stdout = io.MultiWriter(os.Stdout, &outputBuffer)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &outputBuffer)
+
+	return outputBuffer, cmd.Run()
 }
