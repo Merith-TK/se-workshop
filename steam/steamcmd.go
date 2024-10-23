@@ -10,7 +10,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/utils/archive"
+	"github.com/Merith-TK/utils/debug"
 )
 
 var (
@@ -62,8 +64,51 @@ func CMD(args ...string) (bytes.Buffer, error) {
 	cmd := exec.Command(SteamCMD+"\\steamcmd.exe", args...)
 	cmd.Stdin = os.Stdin
 
-	cmd.Stdout = io.MultiWriter(os.Stdout, &outputBuffer)
-	cmd.Stderr = io.MultiWriter(os.Stderr, &outputBuffer)
+	// TODO: Parse output incase of upload new item, and get the workshop id
+	// cmd.Stdout = io.MultiWriter(os.Stdout, &outputBuffer)
+	// cmd.Stderr = io.MultiWriter(os.Stderr, &outputBuffer)
+
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 
 	return outputBuffer, cmd.Run()
+}
+
+func Upload(workshopid string, args ...string) error {
+	debug.SetTitle("Upload")
+	defer debug.ResetTitle()
+
+	for _, arg := range args {
+		debug.Print("Uploading", arg)
+		fullpath, abserr := filepath.Abs(arg)
+		if abserr != nil {
+			debug.Print("Failed to get absolute path:", abserr)
+			return abserr
+		}
+
+		// Check if the path is a directory
+		fileinfo, staterr := os.Stat(fullpath)
+		if staterr != nil {
+			debug.Print("Failed to get file info:", staterr)
+			return staterr
+		}
+
+		if fileinfo.IsDir() {
+			vdfitem := vdf.VDFItem{
+				ContentFolder: fullpath,
+				WorkshopID:    workshopid,
+			}
+
+			vdfpath := filepath.Join(fullpath, "workshop.vdf")
+			err := os.WriteFile(vdfpath, []byte(vdf.Build(vdfitem)), 0644)
+			if err != nil {
+				debug.Print("Failed to write workshop.vdf:", err)
+				return err
+			}
+			CMD("+workshop_build_item", vdfpath, "+quit")
+
+		}
+
+	}
+	return nil
 }
