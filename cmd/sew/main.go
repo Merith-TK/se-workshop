@@ -9,7 +9,7 @@ import (
 
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/steam"
-	"github.com/Merith-TK/se-workshop/workshop/blueprint"
+	"github.com/Merith-TK/se-workshop/workshop/sebp"
 	"github.com/Merith-TK/utils/debug"
 )
 
@@ -43,7 +43,7 @@ func main() {
 
 	switch args[0] {
 	case "bp", "blueprint", "blueprints", "schematic", "schematics", "schem":
-		blueprint.HandleCommand(args[1:])
+		sebp.HandleCommand(args[1:])
 	case "cmd":
 		steam.CMD(args[1:]...)
 

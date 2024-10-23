@@ -1,6 +1,7 @@
-package blueprint
+package semod
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,8 @@ import (
 
 // WorkshopID retrieves the workshop ID for a given path, attempting to fix it if missing
 func WorkshopID(path string) string {
+	debug.SetTitle("Getting Workshop ID")
+	defer debug.ResetTitle()
 	if path == "" {
 		path, _ = os.Getwd()
 	}
@@ -30,8 +33,10 @@ func WorkshopID(path string) string {
 
 // extractWorkshopID scans the provided file for a WorkshopId tag and returns its value
 func extractWorkshopID(path string) string {
-	if !strings.HasSuffix(path, ".sbc") {
-		path = filepath.Join(path, "bp.sbc")
+	debug.SetTitle("Extracting Workshop ID")
+	defer debug.ResetTitle()
+	if !strings.HasSuffix(path, ".sbmi") {
+		path = filepath.Join(path, "modinfo.sbmi")
 	}
 
 	file, err := os.ReadFile(path)
@@ -40,26 +45,33 @@ func extractWorkshopID(path string) string {
 		return "0"
 	}
 
-	fileStr := string(file)
-
-	// Find the Workshop ID tag
-	if i := strings.Index(fileStr, "<WorkshopId>"); i != -1 {
-		id := fileStr[i+len("<WorkshopId>") : strings.Index(fileStr[i:], "</WorkshopId>")+i]
-		return id
+	var metadata Metadata
+	err = xml.Unmarshal(file, &metadata)
+	if err != nil {
+		debug.Print("Error unmarshalling XML:", err)
+		return "0"
 	}
 
-	if i := strings.Index(fileStr, "<WorkshopIds>"); i != -1 {
-		if j := strings.Index(fileStr[i:], "<Id>"); j != -1 {
-			id := fileStr[i+j+len("<Id>") : strings.Index(fileStr[i+j:], "</Id>")+i+j]
-			return id
+	if metadata.WorkshopId != "" {
+		return metadata.WorkshopId
+	} else {
+
+		for _, item := range metadata.WorkshopIds {
+			if item.WorkshopId.ServiceName == "Steam" {
+				return item.WorkshopId.ID
+			}
 		}
 	}
 
+	debug.Print("No Workshop ID found")
 	return "0"
 }
 
 // fixWorkshopID attempts to update the .sbc file by reading the WorkshopID from workshop.vdf
 func fixWorkshopID(path string) string {
+	debug.SetTitle("Fixing Workshop ID")
+	defer debug.ResetTitle()
+
 	if !strings.HasSuffix(path, ".sbc") {
 		path = filepath.Join(path, "bp.sbc")
 	}
@@ -85,27 +97,51 @@ func fixWorkshopID(path string) string {
 		return "0"
 	}
 
-	newContent := strings.Replace(string(content),
-		`      <Points>0</Points>
-	</ShipBlueprint>
-  </ShipBlueprints>
-</Definitions>`,
-		`      <Points>0</Points>
-      <WorkshopIds>
-        <WorkshopId>
-          <Id>`+vdfItem.WorkshopID+`</Id>
-          <ServiceName>Steam</ServiceName>
-        </WorkshopId>
-      </WorkshopIds>
-	</ShipBlueprint>
-  </ShipBlueprints>
-</Definitions>`, 1)
-
-	err = os.WriteFile(path, []byte(newContent), 0644)
+	// parse the XML
+	var metadata Metadata
+	err = xml.Unmarshal(content, &metadata)
 	if err != nil {
-		debug.Print("Error writing to file:", err)
+		debug.Print("Error unmarshalling XML:", err)
 		return "0"
-
 	}
+
+	// Update the Workshop ID
+	metadata.WorkshopId = vdfItem.WorkshopID
+	found := false
+	for i, item := range metadata.WorkshopIds {
+		if item.WorkshopId.ServiceName == "Steam" {
+			metadata.WorkshopIds[i].WorkshopId.ID = vdfItem.WorkshopID
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		metadata.WorkshopIds = append(metadata.WorkshopIds, shared.WorkshopIDItem{
+			WorkshopId: struct {
+				Text        string `xml:",chardata"`
+				ID          string `xml:"Id,omitempty"`
+				ServiceName string `xml:"ServiceName,omitempty"`
+			}{
+				ServiceName: "Steam",
+				ID:          vdfItem.WorkshopID,
+			},
+		})
+	}
+
+	// Marshal the updated metadata back to XML
+	updatedContent, err := xml.MarshalIndent(metadata, "", "  ")
+	if err != nil {
+		debug.Print("Error marshalling XML:", err)
+		return "0"
+	}
+
+	// Write the updated content back to the file
+	err = os.WriteFile(path+".udated.sbc", updatedContent, 0644)
+	if err != nil {
+		debug.Print("Error writing file:", err)
+		return "0"
+	}
+
 	return vdfItem.WorkshopID
 }

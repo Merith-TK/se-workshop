@@ -1,2 +1,4 @@
 github.com/Merith-TK/utils v0.0.0-20241022045459-1018f4b81f87 h1:z6UI46B9lUzCUAHs+VjURdBDelL524gCTNybZCRsn/8=
 github.com/Merith-TK/utils v0.0.0-20241022045459-1018f4b81f87/go.mod h1:gLvM19iu7i+cnsQMBq98rZa98tv9DCxecmFXuHQS9kc=
+github.com/beevik/etree v1.4.1 h1:PmQJDDYahBGNKDcpdX8uPy1xRCwoCGVUiW669MEirVI=
+github.com/beevik/etree v1.4.1/go.mod h1:gPNJNaBGVZ9AwsidazFZyygnd+0pAU38N4D+WemwKNs=

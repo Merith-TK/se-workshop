@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/Merith-TK/se-workshop/steam"
-	"github.com/Merith-TK/se-workshop/workshop/blueprint"
+	"github.com/Merith-TK/se-workshop/workshop/sebp"
 
 	"github.com/Merith-TK/utils/debug"
 )
@@ -31,7 +31,7 @@ func update(args ...string) error {
 			steam.CMD("+workshop_build_item", filepath.Join(fullpath, "workshop.vdf"), "+quit")
 			bpSbcPath := filepath.Join(fullpath, "bp.sbc")
 			if _, err := os.Stat(bpSbcPath); err == nil {
-				blueprint.WorkshopID(fullpath)
+				sebp.WorkshopID(fullpath)
 			}
 
 		}

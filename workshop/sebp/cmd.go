@@ -1,4 +1,4 @@
-package blueprint
+package sebp
 
 import (
 	"fmt"
@@ -6,11 +6,15 @@ import (
 
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/vdf"
+	"github.com/Merith-TK/utils/debug"
 )
 
 var blueprintsDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\Blueprints\\local\\"
 
 func HandleCommand(args []string) {
+	debug.SetTitle("Handling Command")
+	defer debug.ResetTitle()
+
 	command := args[0]
 	args = args[1:]
 	switch command {
