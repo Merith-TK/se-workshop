@@ -1,4 +1,4 @@
-package sebp
+package sescr
 
 import (
 	"fmt"
@@ -6,10 +6,11 @@ import (
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/steam"
 	"github.com/Merith-TK/se-workshop/vdf"
+	"github.com/Merith-TK/se-workshop/workshop/semod"
 	"github.com/Merith-TK/utils/debug"
 )
 
-var blueprintsDir = shared.SEDir + "\\Blueprints\\local\\"
+var modsDir = shared.SEDir + "\\IngameScripts\\local\\"
 
 func HandleCommand(args []string) {
 	debug.SetTitle("Handling Command")
@@ -20,16 +21,16 @@ func HandleCommand(args []string) {
 	switch command {
 
 	case "folder":
-		println(blueprintsDir)
+		println(modsDir)
 	case "get-id", "getid", "get", "id":
 		if len(args) == 0 {
 			shared.PWD()
 			return
 		}
-		workshopid := WorkshopID(args[0])
+		workshopid := semod.WorkshopID(args[0])
 		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopid)
 	case "vdf":
-		workshopid := WorkshopID(args[0])
+		workshopid := semod.WorkshopID(args[0])
 		workshopItem := vdf.VDFItem{
 			WorkshopID:    workshopid,
 			ContentFolder: args[0],
@@ -39,8 +40,8 @@ func HandleCommand(args []string) {
 	case "upload", "update":
 		fullpath := args[0]
 		args = args[1:]
-		steam.Upload(WorkshopID(fullpath), args...)
+		steam.Upload(semod.WorkshopID(fullpath), args...)
 	default:
-		shared.PrintHelp("BP: Unknown command: " + command)
+		shared.PrintHelp("MOD: Unknown command: " + command)
 	}
 }

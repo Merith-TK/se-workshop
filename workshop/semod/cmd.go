@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Merith-TK/se-workshop/shared"
+	"github.com/Merith-TK/se-workshop/steam"
 	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/utils/debug"
 )
@@ -35,8 +36,10 @@ func HandleCommand(args []string) {
 		}
 		workshopvdf := vdf.Build(workshopItem)
 		println(workshopvdf)
-	case "upload":
-		shared.PrintHelp("MOD: Upload command not implemented yet")
+	case "upload", "update":
+		fullpath := args[0]
+		args = args[1:]
+		steam.Upload(WorkshopID(fullpath), args...)
 	default:
 		shared.PrintHelp("MOD: Unknown command: " + command)
 	}

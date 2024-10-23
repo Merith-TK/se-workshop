@@ -11,6 +11,7 @@ import (
 	"github.com/Merith-TK/se-workshop/steam"
 	"github.com/Merith-TK/se-workshop/workshop/sebp"
 	"github.com/Merith-TK/se-workshop/workshop/semod"
+	"github.com/Merith-TK/se-workshop/workshop/sescr"
 	"github.com/Merith-TK/utils/debug"
 )
 
@@ -49,9 +50,16 @@ func main() {
 	case "mod", "mods":
 		debug.Print("Mod command detected")
 		semod.HandleCommand(args[1:])
+	case "script", "scripts", "scr", "src":
+		debug.Print("Script command detected")
+		sescr.HandleCommand(args[1:])
+	// Actual Command
 	case "cmd":
 		debug.Print("CMD command detected")
 		steam.CMD(args[1:]...)
+	case "download", "dl":
+		debug.Print("Download command detected")
+		steam.CMD("+workshop_download_item", "244850", args[1], "+quit")
 	case "help":
 		debug.Print("Help command detected")
 		shared.PrintHelp("")
@@ -84,10 +92,9 @@ func main() {
 		if err := steam.StartClient(); err != nil {
 			fmt.Println("Error starting Steam:", err)
 		}
-
 	case "wtf":
 		debug.Print("WTF command detected")
-		fmt.Println(args)
+		fmt.Println(flag.Args())
 	default:
 		debug.Print("Unknown command detected")
 		shared.PrintHelp("Unknown command: " + args[0])
