@@ -6,12 +6,10 @@ import (
 	"github.com/Merith-TK/se-workshop/shared"
 )
 
+// Metadata represents the structure of modinfo.sbmi
 type Metadata struct {
-	XMLName      xml.Name                `xml:"MyObjectBuilder_ModInfo"`
-	Text         string                  `xml:",chardata"`
-	Xsd          string                  `xml:"xsd,attr,omitempty"`
-	Xsi          string                  `xml:"xsi,attr,omitempty"`
-	SteamIDOwner string                  `xml:"SteamIDOwner,omitempty"`
-	WorkshopId   string                  `xml:"WorkshopId,omitempty"`
-	WorkshopIds  []shared.WorkshopIDItem `xml:"WorkshopIds,omitempty"`
+	XMLName      xml.Name                 `xml:"MyObjectBuilder_ModInfo"`
+	SteamIDOwner string                   `xml:"SteamIDOwner"`
+	WorkshopId   string                   `xml:"WorkshopId"`
+	WorkshopIds  []shared.WorkshopIDEntry `xml:"WorkshopIds>WorkshopId"` // Correctly handles nested WorkshopId entries
 }

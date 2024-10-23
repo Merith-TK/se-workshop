@@ -217,11 +217,11 @@ type Metadata struct {
 					} `xml:"NPCGridClaimElapsed,omitempty"`
 				} `xml:"CubeGrid,omitempty"`
 			} `xml:"CubeGrids,omitempty"`
-			EnvironmentType string                  `xml:"EnvironmentType,omitempty"`
-			WorkshopId      string                  `xml:"WorkshopId,omitempty"`
-			WorkshopIds     []shared.WorkshopIDItem `xml:"WorkshopIds,omitempty"`
-			OwnerSteamId    string                  `xml:"OwnerSteamId,omitempty"`
-			Points          string                  `xml:"Points,omitempty"`
+			EnvironmentType string                   `xml:"EnvironmentType,omitempty"`
+			WorkshopId      string                   `xml:"WorkshopId,omitempty"`
+			WorkshopIds     []shared.WorkshopIDEntry `xml:"WorkshopIds>WorkshopId"` // Correctly handles nested WorkshopId entries
+			OwnerSteamId    string                   `xml:"OwnerSteamId,omitempty"`
+			Points          string                   `xml:"Points,omitempty"`
 		} `xml:"ShipBlueprint,omitempty"`
 	} `xml:"ShipBlueprints,omitempty"`
 }

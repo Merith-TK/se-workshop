@@ -8,3 +8,7 @@ type WorkshopIDItem struct {
 		ServiceName string `xml:"ServiceName,omitempty"`
 	} `xml:"WorkshopId,omitempty"`
 }
+type WorkshopIDEntry struct {
+	ID          string `xml:"Id"`
+	ServiceName string `xml:"ServiceName"`
+}

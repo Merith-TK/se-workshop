@@ -2,14 +2,13 @@ package semod
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/utils/debug"
 )
 
-var modsDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\Mods\\"
+var modsDir = shared.SEDir + "\\Mods\\"
 
 func HandleCommand(args []string) {
 	debug.SetTitle("Handling Command")

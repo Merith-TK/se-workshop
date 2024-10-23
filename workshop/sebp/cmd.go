@@ -2,14 +2,13 @@ package sebp
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/utils/debug"
 )
 
-var blueprintsDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\Blueprints\\local\\"
+var blueprintsDir = shared.SEDir + "\\Blueprints\\local\\"
 
 func HandleCommand(args []string) {
 	debug.SetTitle("Handling Command")

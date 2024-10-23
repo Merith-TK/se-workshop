@@ -10,6 +10,7 @@ import (
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/steam"
 	"github.com/Merith-TK/se-workshop/workshop/sebp"
+	"github.com/Merith-TK/se-workshop/workshop/semod"
 	"github.com/Merith-TK/utils/debug"
 )
 
@@ -43,13 +44,19 @@ func main() {
 
 	switch args[0] {
 	case "bp", "blueprint", "blueprints", "schematic", "schematics", "schem":
+		debug.Print("Blueprint command detected")
 		sebp.HandleCommand(args[1:])
+	case "mod", "mods":
+		debug.Print("Mod command detected")
+		semod.HandleCommand(args[1:])
 	case "cmd":
+		debug.Print("CMD command detected")
 		steam.CMD(args[1:]...)
-
 	case "help":
+		debug.Print("Help command detected")
 		shared.PrintHelp("")
 	case "login":
+		debug.Print("Login command detected")
 		if len(args) > 2 {
 			steam.CMD("+login", args[1], args[2], "+quit")
 		} else {
@@ -68,6 +75,7 @@ func main() {
 			panic(err)
 		}
 	case "vent-steam":
+		debug.Print("Vent-steam command detected")
 		if err := steam.StopClient(); err != nil {
 			fmt.Println("Error stopping Steam:", err)
 			return
@@ -78,8 +86,10 @@ func main() {
 		}
 
 	case "wtf":
+		debug.Print("WTF command detected")
 		fmt.Println(args)
 	default:
+		debug.Print("Unknown command detected")
 		shared.PrintHelp("Unknown command: " + args[0])
 	}
 }
