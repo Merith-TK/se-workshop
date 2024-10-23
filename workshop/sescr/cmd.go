@@ -4,9 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Merith-TK/se-workshop/shared"
-	"github.com/Merith-TK/se-workshop/steam"
 	"github.com/Merith-TK/se-workshop/vdf"
-	"github.com/Merith-TK/se-workshop/workshop/semod"
 	"github.com/Merith-TK/utils/debug"
 )
 
@@ -27,10 +25,9 @@ func HandleCommand(args []string) {
 			shared.PWD()
 			return
 		}
-		workshopid := semod.WorkshopID(args[0])
-		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopid)
+		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + shared.GetWorkshopID(args[0]))
 	case "vdf":
-		workshopid := semod.WorkshopID(args[0])
+		workshopid := shared.GetWorkshopID(args[0])
 		workshopItem := vdf.VDFItem{
 			WorkshopID:    workshopid,
 			ContentFolder: args[0],
@@ -38,7 +35,7 @@ func HandleCommand(args []string) {
 		workshopvdf := vdf.Build(workshopItem)
 		println(workshopvdf)
 	case "upload", "update":
-		err := steam.Upload(semod.WorkshopID(args[0]), args[0])
+		err := shared.UploadWorkshop(args[0], shared.GetWorkshopID(args[0]))
 		if err != nil {
 			fmt.Println("Failed to upload blueprint: " + err.Error())
 		}

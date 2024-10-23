@@ -2,9 +2,9 @@ package sebp
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Merith-TK/se-workshop/shared"
-	"github.com/Merith-TK/se-workshop/steam"
 	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/utils/debug"
 )
@@ -19,6 +19,8 @@ func HandleCommand(args []string) {
 	args = args[1:]
 	switch command {
 
+	case "fix-contents":
+		shared.SetWorkshopID(args[0], shared.GetWorkshopID(args[0]))
 	case "folder":
 		println(blueprintsDir)
 	case "get-id", "getid", "get", "id":
@@ -26,18 +28,29 @@ func HandleCommand(args []string) {
 			shared.PWD()
 			return
 		}
-		workshopid := WorkshopID(args[0])
+		if !strings.HasSuffix(args[0], ".sbc") {
+			args[0] = args[0] + "\\bp.sbc"
+		}
+		workshopid := shared.GetWorkshopID(args[0])
 		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopid)
+	case "set-id", "setid", "set":
+		if len(args) < 2 {
+			shared.PrintHelp("BP: set-id requires a path and a workshop ID")
+			return
+		}
+		if !strings.HasSuffix(args[0], ".sbc") {
+			args[0] = args[0] + "\\bp.sbc"
+		}
+		shared.SetWorkshopID(args[0], args[1])
 	case "vdf":
-		workshopid := WorkshopID(args[0])
 		workshopItem := vdf.VDFItem{
-			WorkshopID:    workshopid,
+			WorkshopID:    shared.GetWorkshopID(args[0]),
 			ContentFolder: args[0],
 		}
 		workshopvdf := vdf.Build(workshopItem)
 		println(workshopvdf)
 	case "upload", "update":
-		err := steam.Upload(WorkshopID(args[0]), args[0])
+		err := shared.UploadWorkshop(args[0], shared.GetWorkshopID(args[0]))
 		if err != nil {
 			fmt.Println("Failed to upload blueprint: " + err.Error())
 		}

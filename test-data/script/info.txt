@@ -1,0 +1,6 @@
+This Script Does Not Exist
+This Script is a republish of the Turret Alarm [Deprecated] script
+It *should not* be visible, if it is, disregard
+
+This is republished with permission from Foltast, 
+Original Script located here: https://steamcommunity.com/sharedfiles/filedetails/?id=2241293385

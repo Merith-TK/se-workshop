@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Merith-TK/se-workshop/fetch"
 	"github.com/Merith-TK/utils/debug"
 )
 
@@ -55,7 +54,7 @@ func Build(item VDFItem) string {
 	vdfContent = append(vdfContent, ` "previewfile"		"`+absPath+`\thumb.png"`)
 
 	// Fetch workshop info from the mod directory
-	foundReadme, title, desc := fetch.Readme(item.ContentFolder)
+	foundReadme, title, desc := Readme(item.ContentFolder)
 	debug.Print("Locating Workshop Info at", item.ContentFolder, ":", foundReadme, title, desc)
 	if foundReadme {
 		item.Title = title
@@ -71,7 +70,7 @@ func Build(item VDFItem) string {
 	}
 
 	// Fetch changelog from the mod directory
-	foundChangelog, changelog := fetch.Changelog(item.ContentFolder)
+	foundChangelog, changelog := Changelog(item.ContentFolder)
 	debug.Print("Locating Changelog at", item.ContentFolder, ":", foundChangelog, changelog)
 	if foundChangelog {
 		item.ChangeNote = changelog

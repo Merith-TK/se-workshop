@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RespawnShips>
+	 <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>OPCRamDropPod</SubtypeId>
+      </Id>
+      <DisplayName>Ram Spawnpod</DisplayName>
+      <Icon>Textures\OPC SpawnPod.png</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>OPCRamDropPod</Prefab>
+  	  <PlanetTypes>
+          <PlanetType>EarthLike</PlanetType>
+          <PlanetType>Mars</PlanetType>
+          <PlanetType>Alien</PlanetType>
+          <PlanetType>Pertam</PlanetType>
+          <PlanetType>Triton</PlanetType>
+  	  </PlanetTypes>
+      <PlanetDeployAltitude>300</PlanetDeployAltitude>
+      <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
+	    <UseForPlanetsWithoutAtmosphere>true</UseForPlanetsWithoutAtmosphere>
+      <InitialLinearVelocity x="0" y="-5" z="0" />
+      <InitialAngularVelocity x="0" y="0.5" z="0" />
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>OPCRamDropPodMoon</SubtypeId>
+      </Id>
+      <DisplayName>Ram Spawnpod</DisplayName>
+      <Icon>Textures\OPC SpawnPod.png</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>OPCRamDropPod</Prefab>
+      <PlanetTypes>
+          <PlanetType>Moon</PlanetType>
+          <PlanetType>Europa</PlanetType>
+          <PlanetType>Titan</PlanetType>
+      </PlanetTypes>
+      <PlanetDeployAltitude>10</PlanetDeployAltitude>
+      <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
+      <UseForPlanetsWithoutAtmosphere>true</UseForPlanetsWithoutAtmosphere>
+      <InitialLinearVelocity x="0" y="-5" z="0" />
+      <InitialAngularVelocity x="0" y="0.5" z="0" />
+    </Ship>
+    <Ship Enabled="false">
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>RespawnPlanetPod</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_PlanetaryLander</DisplayName>
+      <Icon>Textures\GUI\Icons\RespawnShips\RespawnPlanetPod.png</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>RespawnPlanetPod</Prefab>
+  	  <PlanetTypes>
+          <PlanetType>EarthLike</PlanetType>
+          <PlanetType>Mars</PlanetType>
+          <PlanetType>Alien</PlanetType>
+  	  </PlanetTypes>
+  	  <MinimalAirDensity>0.8</MinimalAirDensity>
+
+      <PlanetDeployAltitude>2000</PlanetDeployAltitude>
+      <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
+
+      <InitialLinearVelocity x="0" y="-95" z="0" />
+      <InitialAngularVelocity x="0" y="0.5" z="0" />
+      <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
+    </Ship>
+    <Ship Enabled="false">
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>RespawnMoonPod</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_PlanetaryLander</DisplayName>
+      <Icon>Textures\GUI\Icons\RespawnShips\RespawnMoonPod.png</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>RespawnMoonPod</Prefab>
+      
+      <PlanetDeployAltitude>8</PlanetDeployAltitude>
+      <UseForPlanetsWithoutAtmosphere>true</UseForPlanetsWithoutAtmosphere>
+      <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
+    </Ship>
+  </RespawnShips>
+</Definitions>

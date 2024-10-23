@@ -1,0 +1,11 @@
+"workshopitem"
+{
+	"appid"		"244850"
+	"publishedfileid"		"3353622153"
+	"contentfolder"		"E:\Workspace\github.com\Merith-TK\se-workshop\test-data\bp"
+	"visibility"		"0"
+	"previewfile"		"E:\Workspace\github.com\Merith-TK\se-workshop\test-data\bp\thumb.png"
+	"title"		"This BP Does Not Exist"
+	"description"		"This BP is a republish of the OPC Loki, 
+It *should not* be visible, if it is, disregard"
+}

@@ -1,4 +1,4 @@
-package fetch
+package vdf
 
 import (
 	"bufio"
@@ -8,6 +8,15 @@ import (
 
 	"github.com/Merith-TK/utils/debug"
 )
+
+/*
+	Info.TXT
+	Line 1: Title
+	Line 2+: Description
+
+*/
+
+//TODO: Expand this to include more information
 
 func Readme(modPath string) (bool, string, string) {
 	infoFilePath := filepath.Join(modPath, "info.txt")
@@ -31,4 +40,24 @@ func Readme(modPath string) (bool, string, string) {
 		return true, lines[0], strings.Join(lines[1:], "\n")
 	}
 	return false, "", ""
+}
+
+func Changelog(modPath string) (bool, string) {
+	changelogFilePath := filepath.Join(modPath, "changelog.txt")
+	file, err := os.Open(changelogFilePath)
+	if err != nil {
+		return false, ""
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return false, ""
+	}
+
+	return true, strings.Join(lines, "\n")
 }

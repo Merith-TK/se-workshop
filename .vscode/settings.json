@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.sbc": "xml",
+        "*.sbmi": "xml"
+    }
+}

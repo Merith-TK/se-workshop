@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/Merith-TK/se-workshop/shared"
-	"github.com/Merith-TK/se-workshop/steam"
 	"github.com/Merith-TK/se-workshop/workshop/sebp"
 	"github.com/Merith-TK/se-workshop/workshop/semod"
 	"github.com/Merith-TK/se-workshop/workshop/sescr"
@@ -16,7 +15,7 @@ import (
 )
 
 func main() {
-	steam.Setup()
+	shared.SetupSteamcmd()
 
 	flag.Parse()
 	args := []string{}
@@ -56,22 +55,22 @@ func main() {
 	// Actual Command
 	case "cmd":
 		debug.Print("CMD command detected")
-		steam.CMD(args[1:]...)
+		shared.Steamcmd(args[1:]...)
 	case "download", "dl":
 		debug.Print("Download command detected")
-		steam.CMD("+workshop_download_item", "244850", args[1], "+quit")
+		shared.Steamcmd("+workshop_download_item", "244850", args[1], "+quit")
 	case "help":
 		debug.Print("Help command detected")
 		shared.PrintHelp("")
 	case "login":
 		debug.Print("Login command detected")
 		if len(args) > 2 {
-			steam.CMD("+login", args[1], args[2], "+quit")
+			shared.Steamcmd("+login", args[1], args[2], "+quit")
 		} else {
-			steam.CMD("+login", args[1], "+quit")
+			shared.Steamcmd("+login", args[1], "+quit")
 		}
 		username := flag.Arg(1)
-		filePath := filepath.Join(steam.SteamCMD, "username.txt")
+		filePath := filepath.Join(shared.SteamcmdDir, "username.txt")
 		file, err := os.Create(filePath)
 		if err != nil {
 			panic(err)
@@ -84,12 +83,12 @@ func main() {
 		}
 	case "vent-steam":
 		debug.Print("Vent-steam command detected")
-		if err := steam.StopClient(); err != nil {
+		if err := shared.StopSteamClient(); err != nil {
 			fmt.Println("Error stopping Steam:", err)
 			return
 		}
 
-		if err := steam.StartClient(); err != nil {
+		if err := shared.StartSteamClient(); err != nil {
 			fmt.Println("Error starting Steam:", err)
 		}
 	case "wtf":
