@@ -37,9 +37,10 @@ func HandleCommand(args []string) {
 		workshopvdf := vdf.Build(workshopItem)
 		println(workshopvdf)
 	case "upload", "update":
-		fullpath := args[0]
-		args = args[1:]
-		steam.Upload(WorkshopID(fullpath), args...)
+		err := steam.Upload(WorkshopID(args[0]), args[0])
+		if err != nil {
+			fmt.Println("Failed to upload blueprint: " + err.Error())
+		}
 	default:
 		shared.PrintHelp("MOD: Unknown command: " + command)
 	}
