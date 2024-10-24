@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Merith-TK/se-workshop/shared"
+	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/se-workshop/workshop/sebp"
 	"github.com/Merith-TK/se-workshop/workshop/semod"
 	"github.com/Merith-TK/se-workshop/workshop/sescr"
@@ -52,16 +53,42 @@ func main() {
 	case "script", "scripts", "scr", "src":
 		debug.Print("Script command detected")
 		sescr.HandleCommand(args[1:])
-	// Actual Command
 	case "cmd":
 		debug.Print("CMD command detected")
 		shared.Steamcmd(args[1:]...)
 	case "download", "dl":
 		debug.Print("Download command detected")
 		shared.Steamcmd("+workshop_download_item", "244850", args[1], "+quit")
-	case "help":
-		debug.Print("Help command detected")
-		shared.PrintHelp("")
+	case "get-id", "getid", "get", "id":
+		debug.Print("Get-id command detected")
+		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + shared.GetWorkshopID(args[1]))
+	case "get-vdf", "getvdf", "vdf":
+		debug.Print("Get-vdf command detected")
+		workshopid := shared.GetWorkshopID(args[1])
+		workshopItem := vdf.VDFItem{
+			WorkshopID:    workshopid,
+			ContentFolder: args[1],
+		}
+		workshopvdf := vdf.Build(workshopItem)
+		fmt.Println(workshopvdf)
+	case "set-id", "setid", "set":
+		if len(args) < 2 {
+			shared.PrintHelp("BP: set-id requires a path and a workshop ID")
+			return
+		}
+		if !strings.HasSuffix(args[0], ".sbc") {
+			args[0] = args[0] + "\\bp.sbc"
+		}
+		shared.SetWorkshopID(args[0], args[1])
+	case "fix-contents":
+		shared.SetWorkshopID(args[0], shared.GetWorkshopID(args[0]))
+
+	case "upload", "update":
+		debug.Print("Upload command detected")
+		err := shared.UploadWorkshop(args[0], shared.GetWorkshopID(args[0]))
+		if err != nil {
+			fmt.Println("Failed to upload blueprint: " + err.Error())
+		}
 	case "login":
 		debug.Print("Login command detected")
 		if len(args) > 2 {
@@ -91,9 +118,6 @@ func main() {
 		if err := shared.StartSteamClient(); err != nil {
 			fmt.Println("Error starting Steam:", err)
 		}
-	case "wtf":
-		debug.Print("WTF command detected")
-		fmt.Println(flag.Args())
 	default:
 		debug.Print("Unknown command detected")
 		shared.PrintHelp("Unknown command: " + args[0])

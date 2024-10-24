@@ -44,14 +44,33 @@ func GetWorkshopID(path string) string {
 	debug.SetTitle("Get Workshop ID")
 	defer debug.ResetTitle()
 
-	if path == "" {
-		path, _ = os.Getwd()
-	}
 	if !strings.HasSuffix(path, ".sbc") && !strings.HasSuffix(path, ".sbmi") {
-		debug.Print("Invalid path:", path)
+		if FileExists(path + "\\workshop.vdf") {
+			path = path + "\\workshop.vdf"
+		} else if FileExists(path + "\\modinfo.sbmi") {
+			path = path + "\\modinfo.sbmi"
+		} else if FileExists(path + "\\bp.sbc") {
+			path = path + "\\bp.sbc"
+		} else {
+			debug.Print("Invalid path:", path)
+			return "0"
+		}
+	}
+
+	if !FileExists(path) {
+		debug.Print("File not found:", path)
 		return "0"
 	}
 
+	if strings.HasSuffix(path, "workshop.vdf") {
+		debug.Print("Reading VDF file:", path)
+		vdfContent, err := vdf.Read(path)
+		if err != nil {
+			debug.Print("Error reading VDF file:", err)
+			return "0"
+		}
+		return vdfContent.WorkshopID
+	}
 	if strings.HasSuffix(path, ".sbmi") {
 		debug.Print("Reading modinfo file:", path)
 		doc := etree.NewDocument()
@@ -137,7 +156,18 @@ func GetWorkshopID(path string) string {
 
 func SetWorkshopID(path string, workshopID string) {
 	if !strings.HasSuffix(path, ".sbc") && !strings.HasSuffix(path, ".sbmi") {
-		debug.Print("Invalid path:", path)
+		if FileExists(path + "\\modinfo.sbmi") {
+			path = path + "\\modinfo.sbmi"
+		} else if FileExists(path + "\\bp.sbc") {
+			path = path + "\\bp.sbc"
+		} else {
+			debug.Print("Invalid path:", path)
+			return
+		}
+	}
+
+	if !FileExists(path) {
+		debug.Print("File not found:", path)
 		return
 	}
 
@@ -221,8 +251,8 @@ func SetWorkshopID(path string, workshopID string) {
 	}
 }
 
-// trimTrailingWhitespace removes trailing whitespace from each line in a given string.
-func TrimTrailingWhitespace(content string) string {
+// CleanXML removes empty elements from the XML content and normalizes line endings
+func CleanXML(content string) string {
 	// Split the content into lines
 	lines := strings.Split(content, "\n")
 
