@@ -15,51 +15,61 @@ import (
 	"github.com/Merith-TK/utils/debug"
 )
 
+// SteamcmdDir is the path where SteamCMD is installed.
 var (
 	SteamcmdDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\.steamcmd"
 )
 
+// StartSteamClient launches the Steam client using a command-line call.
+// It opens the Steam client if installed on the system.
 func StartSteamClient() error {
 	cmd := exec.Command("cmd", "/C", "start", "steam://open/main")
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to start Steam: %v", err)
 	}
 	return nil
 }
 
+// StopSteamClient terminates the Steam client process using taskkill.
+// It forcibly closes Steam if running.
 func StopSteamClient() error {
 	cmd := exec.Command("taskkill", "/F", "/IM", "steam.exe")
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to stop Steam: %v", err)
 	}
 	return nil
 }
 
+// SetupSteamcmd ensures that SteamCMD is available on the system.
+// If SteamCMD is not present, it downloads and extracts the SteamCMD installer.
 func SetupSteamcmd() error {
-	if _, err := os.Stat(filepath.Join(SteamcmdDir, "steamcmd.exe")); os.IsNotExist(err) {
+	steamcmdPath := filepath.Join(SteamcmdDir, "steamcmd.exe")
+
+	if _, err := os.Stat(steamcmdPath); os.IsNotExist(err) {
 		fmt.Println("steamcmd not found, downloading...")
+
+		// Download steamcmd.zip
 		resp, err := http.Get("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip")
 		if err != nil {
-			return fmt.Errorf("Failed to download steamcmd.zip: %v", err)
+			return fmt.Errorf("failed to download steamcmd.zip: %v", err)
 		}
 		defer resp.Body.Close()
 
+		// Create steamcmd.zip file in the TEMP directory
 		out, err := os.Create(os.Getenv("TEMP") + "/steamcmd.zip")
 		if err != nil {
-			return fmt.Errorf("Failed to create steamcmd.zip: %v", err)
+			return fmt.Errorf("failed to create steamcmd.zip: %v", err)
 		}
 		defer out.Close()
 
-		_, err = io.Copy(out, resp.Body)
-		if err != nil {
-			return fmt.Errorf("Failed to write steamcmd.zip: %v", err)
+		// Copy the downloaded data to steamcmd.zip
+		if _, err := io.Copy(out, resp.Body); err != nil {
+			return fmt.Errorf("failed to write steamcmd.zip: %v", err)
 		}
 
-		err = archive.Unzip(filepath.Join(os.Getenv("TEMP"), "steamcmd.zip"), SteamcmdDir)
-		if err != nil {
-			return fmt.Errorf("Failed to extract steamcmd.zip: %v", err)
+		// Extract steamcmd.zip to SteamcmdDir
+		if err := archive.Unzip(filepath.Join(os.Getenv("TEMP"), "steamcmd.zip"), SteamcmdDir); err != nil {
+			return fmt.Errorf("failed to extract steamcmd.zip: %v", err)
 		}
 
 		fmt.Println("steamcmd downloaded and extracted successfully to", SteamcmdDir)
@@ -68,6 +78,8 @@ func SetupSteamcmd() error {
 	return nil
 }
 
+// Steamcmd runs SteamCMD with the provided arguments and handles authentication.
+// It returns a buffer containing the command's output.
 func Steamcmd(args ...string) (bytes.Buffer, error) {
 	SetupSteamcmd()
 	debug.SetTitle("CMD")
@@ -75,67 +87,79 @@ func Steamcmd(args ...string) (bytes.Buffer, error) {
 
 	usernameFile := filepath.Join(SteamcmdDir, "username.txt")
 	outputBuffer := bytes.Buffer{}
+
+	// Append login details if username.txt exists
 	if _, err := os.Stat(usernameFile); err == nil {
 		content, err := os.ReadFile(usernameFile)
 		if err != nil {
-			return outputBuffer, fmt.Errorf("Failed to read username.txt: %v", err)
+			return outputBuffer, fmt.Errorf("failed to read username.txt: %v", err)
 		}
 		args = append([]string{"+login", string(content)}, args...)
 	}
+
 	log.Println("[SEW] Running steamcmd with args:\n", args)
+
+	// Run steamcmd with arguments
 	cmd := exec.Command(SteamcmdDir+"\\steamcmd.exe", args...)
 	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	// TODO: Parse output incase of upload new item, and get the workshop id
+	// TODO: Parse output for new item uploads to extract workshop ID
 	// cmd.Stdout = io.MultiWriter(os.Stdout, &outputBuffer)
 	// cmd.Stderr = io.MultiWriter(os.Stderr, &outputBuffer)
-
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
 
 	return outputBuffer, cmd.Run()
 }
 
-func UploadWorkshop(path string, workshopid string) error {
+// UploadWorkshop uploads a mod or blueprint to the Steam Workshop using SteamCMD.
+// It takes a path to the mod/blueprint and a workshop ID as parameters.
+func UploadWorkshop(path string, workshopID string) error {
 	SetupSteamcmd()
 	debug.SetTitle("Upload")
 	defer debug.ResetTitle()
 
-	debug.Print("Uploading to workshop ID:", workshopid)
+	debug.Print("Uploading to workshop ID:", workshopID)
 	debug.Print("Path:", path)
 
-	debug.Print("Starting for loop")
-
-	debug.Print("Uploading", path)
-	fullpath, abserr := filepath.Abs(path)
-	if abserr != nil {
-		debug.Print("Failed to get absolute path:", abserr)
-		return abserr
+	fullPath, err := filepath.Abs(path)
+	if err != nil {
+		debug.Print("Failed to get absolute path:", err)
+		return err
 	}
 
-	// Check if the path is a directory
-	fileinfo, staterr := os.Stat(fullpath)
-	if staterr != nil {
-		debug.Print("Failed to get file info:", staterr)
-		return staterr
+	// Ensure the path exists
+	fileInfo, err := os.Stat(fullPath)
+	if err != nil {
+		debug.Print("Failed to get file info:", err)
+		return err
 	}
 
-	if fileinfo.IsDir() {
-		debug.Print("Uploading directory:", fullpath)
-		vdfitem := vdf.VDFItem{
-			ContentFolder: fullpath,
-			WorkshopID:    workshopid,
+	// If the path is a directory, prepare for workshop upload
+	if fileInfo.IsDir() {
+		debug.Print("Uploading directory:", fullPath)
+
+		vdfItem := vdf.VDFItem{
+			ContentFolder: fullPath,
+			WorkshopID:    workshopID,
 		}
 
-		vdfpath := filepath.Join(fullpath, "workshop.vdf")
-		err := os.WriteFile(vdfpath, []byte(vdf.Build(vdfitem)), 0644)
-		if err != nil {
+		// Write workshop.vdf to the content folder
+		vdfPath := filepath.Join(fullPath, "workshop.vdf")
+		if err := os.WriteFile(vdfPath, []byte(vdf.Build(vdfItem)), 0644); err != nil {
 			debug.Print("Failed to write workshop.vdf:", err)
 			return err
 		}
-		debug.Print("Wrote workshop.vdf to:", vdfpath)
-		Steamcmd("+workshop_build_item", vdfpath, "+quit")
 
+		debug.Print("Wrote workshop.vdf to:", vdfPath)
+
+		// Run SteamCMD to upload the workshop item
+		_, err := Steamcmd("+workshop_build_item", vdfPath, "+quit")
+		if err != nil {
+			debug.Print("Failed to upload workshop item:", err)
+			return err
+		}
 	}
+
 	return nil
 }

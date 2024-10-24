@@ -5,18 +5,39 @@ import (
 	"github.com/Merith-TK/utils/debug"
 )
 
-var Directory = shared.SEDir + "\\Blueprints\\local\\"
-
+// HandleCommand processes the provided arguments and executes the corresponding blueprint-related commands.
+//
+// Supported commands:
+//   - "folder": Prints the directory path where local blueprints are stored.
+//   - If the command is unrecognized, it prints an error message.
+//
+// Parameters:
+//   - args: A slice of strings representing the command and its arguments.
+//
+// Usage:
+//
+//	sebp.HandleCommand([]string{"folder"})
 func HandleCommand(args []string) {
 	debug.SetTitle("Handling Command")
 	defer debug.ResetTitle()
 
+	// Ensure at least one argument (the command) is provided.
+	if len(args) == 0 {
+		shared.PrintHelp("BP: No command provided")
+		return
+	}
+
+	// Extract the command and any additional arguments.
 	command := args[0]
 	args = args[1:]
+
+	// Handle supported commands.
 	switch command {
 	case "folder":
-		println(Directory)
+		// Print the blueprint directory path.
+		println(shared.Constants.Dir.BP)
 	default:
+		// Print an error message for unknown commands.
 		shared.PrintHelp("BP: Unknown command: " + command)
 	}
 }

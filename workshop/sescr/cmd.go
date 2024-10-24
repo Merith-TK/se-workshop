@@ -1,45 +1,43 @@
 package sescr
 
 import (
-	"fmt"
-
 	"github.com/Merith-TK/se-workshop/shared"
-	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/utils/debug"
 )
 
-var modsDir = shared.SEDir + "\\IngameScripts\\local\\"
-
+// HandleCommand processes the provided command arguments related to Space Engineers scripts.
+//
+// Supported commands:
+//   - "folder": Prints the directory path where local scripts are stored.
+//   - If the command is unrecognized, it prints an error message.
+//
+// Parameters:
+//   - args: A slice of strings representing the command and its arguments.
+//
+// Usage:
+//
+//	sescr.HandleCommand([]string{"folder"})
 func HandleCommand(args []string) {
 	debug.SetTitle("Handling Command")
 	defer debug.ResetTitle()
 
+	// Ensure that at least one argument (the command) is provided.
+	if len(args) == 0 {
+		shared.PrintHelp("MOD: No command provided")
+		return
+	}
+
+	// Extract the command and any additional arguments.
 	command := args[0]
 	args = args[1:]
-	switch command {
 
+	// Handle supported commands.
+	switch command {
 	case "folder":
-		println(modsDir)
-	case "get-id", "getid", "get", "id":
-		if len(args) == 0 {
-			shared.PWD()
-			return
-		}
-		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + shared.GetWorkshopID(args[0]))
-	case "vdf":
-		workshopid := shared.GetWorkshopID(args[0])
-		workshopItem := vdf.VDFItem{
-			WorkshopID:    workshopid,
-			ContentFolder: args[0],
-		}
-		workshopvdf := vdf.Build(workshopItem)
-		println(workshopvdf)
-	case "upload", "update":
-		err := shared.UploadWorkshop(args[0], shared.GetWorkshopID(args[0]))
-		if err != nil {
-			fmt.Println("Failed to upload blueprint: " + err.Error())
-		}
+		// Print the mods directory path.
+		println(shared.Constants.Dir.Script)
 	default:
+		// Print an error message for unknown commands.
 		shared.PrintHelp("MOD: Unknown command: " + command)
 	}
 }

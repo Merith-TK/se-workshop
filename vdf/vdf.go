@@ -1,3 +1,6 @@
+// Package vdf provides functions to manage and manipulate VDF (Valve Data Format) files
+// for Steam Workshop items. This includes building VDF files for uploading or updating
+// workshop items, as well as reading existing VDF files.
 package vdf
 
 import (
@@ -9,25 +12,40 @@ import (
 	"github.com/Merith-TK/utils/debug"
 )
 
-// VDFItem represents a generic VDF item with all relevant fields
+// VDFItem represents the necessary fields required to create or read a VDF file.
+// It includes the App ID, Workshop ID, content folder path, visibility, preview file path,
+// title, description, and change note for the item.
 type VDFItem struct {
-	AppID         string
-	WorkshopID    string
-	ContentFolder string
-	Visibility    string
-	PreviewFile   string
-	Title         string
-	Description   string
-	ChangeNote    string
+	AppID         string // The Steam app ID (default: 244850 for Space Engineers)
+	WorkshopID    string // The Steam Workshop ID of the item
+	ContentFolder string // The absolute path to the content folder
+	Visibility    string // Visibility of the item (0 = public, 1 = friends only, 2 = private)
+	PreviewFile   string // The path to the preview image file
+	Title         string // Title of the workshop item
+	Description   string // Description of the workshop item
+	ChangeNote    string // Changelog or update notes
 }
 
-// BuildVDF builds the VDF file content based on the provided VDFItem struct
+// Build generates the content of a VDF file based on the provided VDFItem struct.
+// This content is used to upload or update an item in the Steam Workshop.
+//
+// The function will automatically fill missing fields such as app ID (default 244850),
+// visibility (default 0), and preview file (default: "thumb.png"). It also attempts to
+// retrieve the title and description from an "info.txt" file in the content folder,
+// and the changelog from a "changelog.txt" file if they exist.
+//
+// Parameters:
+// - item: A VDFItem struct containing the necessary fields to build the VDF file.
+//
+// Returns:
+// - A string containing the generated VDF file content, or an empty string in case of errors.
 func Build(item VDFItem) string {
 	absPath, err := filepath.Abs(item.ContentFolder)
 	if err != nil {
 		return ""
 	}
 
+	// Set default values if not provided
 	if item.AppID == "" {
 		item.AppID = "244850"
 	}
@@ -45,15 +63,13 @@ func Build(item VDFItem) string {
 	var vdfContent []string
 	vdfContent = append(vdfContent, `"workshopitem"`)
 	vdfContent = append(vdfContent, `{`)
-
-	// Required fields
 	vdfContent = append(vdfContent, ` "appid"		"`+item.AppID+`"`)
 	vdfContent = append(vdfContent, ` "publishedfileid"	"`+item.WorkshopID+`"`)
 	vdfContent = append(vdfContent, ` "contentfolder"	"`+absPath+`"`)
 	vdfContent = append(vdfContent, ` "visibility"		"`+item.Visibility+`"`)
-	vdfContent = append(vdfContent, ` "previewfile"		"`+absPath+`\thumb.png"`)
+	vdfContent = append(vdfContent, ` "previewfile"		"`+item.PreviewFile+`"`)
 
-	// Fetch workshop info from the mod directory
+	// Fetch workshop info (title and description) from "info.txt"
 	foundReadme, title, desc := Readme(item.ContentFolder)
 	debug.Print("Locating Workshop Info at", item.ContentFolder, ":", foundReadme, title, desc)
 	if foundReadme {
@@ -69,7 +85,7 @@ func Build(item VDFItem) string {
 		vdfContent = append(vdfContent, ` "description"		"`+item.Description+`"`)
 	}
 
-	// Fetch changelog from the mod directory
+	// Fetch changelog from "changelog.txt"
 	foundChangelog, changelog := Changelog(item.ContentFolder)
 	debug.Print("Locating Changelog at", item.ContentFolder, ":", foundChangelog, changelog)
 	if foundChangelog {
@@ -88,7 +104,18 @@ func Build(item VDFItem) string {
 	return strings.Join(vdfContent, "\n")
 }
 
-// ReadVDF reads a VDF file from the given path and returns a VDFItem with the extracted fields.
+// Read reads a VDF file from the provided path and extracts the fields into a VDFItem struct.
+//
+// The VDF file is expected to contain fields such as appid, publishedfileid, contentfolder, etc.
+// This function will scan through the file line by line, extract the values, and populate
+// the VDFItem struct.
+//
+// Parameters:
+// - vdfPath: The file path to the VDF file to read.
+//
+// Returns:
+// - VDFItem: A populated VDFItem struct containing the extracted values.
+// - error: An error if any issues occur while reading the file.
 func Read(vdfPath string) (VDFItem, error) {
 	// Initialize an empty VDFItem
 	item := VDFItem{}
@@ -100,7 +127,7 @@ func Read(vdfPath string) (VDFItem, error) {
 	}
 	defer file.Close()
 
-	// Create a scanner to read through the file line by line
+	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
 
 	// Map to store extracted fields
@@ -115,7 +142,7 @@ func Read(vdfPath string) (VDFItem, error) {
 		"changenote":      "",
 	}
 
-	// Read the VDF file line by line
+	// Read the VDF file line by line and extract key-value pairs
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 

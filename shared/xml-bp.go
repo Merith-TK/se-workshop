@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 )
 
+// TODO: Godoc
+
 // Definitions was generated 2024-10-23 17:07:01 by https://xml-to-go.github.io/ in Ukraine.
 type Metadata struct {
 	XMLName        xml.Name `xml:"Definitions,omitempty"`
