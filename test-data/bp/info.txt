@@ -1,3 +1,6 @@
-This BP Does Not Exist
-This BP is a republish of the OPC Loki, 
+This Blueprint Does Not Exist
+This Blueprint is a republish of the OPC Loki - Modular Ship
 It *should not* be visible, if it is, disregard
+
+This is republished with permission from Foltast, 
+Original Blueprint located here: https://steamcommunity.com/sharedfiles/filedetails/?id=2863712942

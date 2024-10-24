@@ -1,4 +1,4 @@
-package steam
+package shared
 
 import (
 	"bytes"
@@ -16,11 +16,29 @@ import (
 )
 
 var (
-	SteamCMD = os.Getenv("APPDATA") + "\\SpaceEngineers\\.steamcmd"
+	SteamcmdDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\.steamcmd"
 )
 
-func Setup() error {
-	if _, err := os.Stat(filepath.Join(SteamCMD, "steamcmd.exe")); os.IsNotExist(err) {
+func StartSteamClient() error {
+	cmd := exec.Command("cmd", "/C", "start", "steam://open/main")
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("failed to start Steam: %v", err)
+	}
+	return nil
+}
+
+func StopSteamClient() error {
+	cmd := exec.Command("taskkill", "/F", "/IM", "steam.exe")
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("failed to stop Steam: %v", err)
+	}
+	return nil
+}
+
+func SetupSteamcmd() error {
+	if _, err := os.Stat(filepath.Join(SteamcmdDir, "steamcmd.exe")); os.IsNotExist(err) {
 		fmt.Println("steamcmd not found, downloading...")
 		resp, err := http.Get("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip")
 		if err != nil {
@@ -39,22 +57,23 @@ func Setup() error {
 			return fmt.Errorf("Failed to write steamcmd.zip: %v", err)
 		}
 
-		err = archive.Unzip(filepath.Join(os.Getenv("TEMP"), "steamcmd.zip"), SteamCMD)
+		err = archive.Unzip(filepath.Join(os.Getenv("TEMP"), "steamcmd.zip"), SteamcmdDir)
 		if err != nil {
 			return fmt.Errorf("Failed to extract steamcmd.zip: %v", err)
 		}
 
-		fmt.Println("steamcmd downloaded and extracted successfully to", SteamCMD)
+		fmt.Println("steamcmd downloaded and extracted successfully to", SteamcmdDir)
 	}
 
 	return nil
 }
 
-func CMD(args ...string) (bytes.Buffer, error) {
+func Steamcmd(args ...string) (bytes.Buffer, error) {
+	SetupSteamcmd()
 	debug.SetTitle("CMD")
 	defer debug.ResetTitle()
 
-	usernameFile := filepath.Join(SteamCMD, "username.txt")
+	usernameFile := filepath.Join(SteamcmdDir, "username.txt")
 	outputBuffer := bytes.Buffer{}
 	if _, err := os.Stat(usernameFile); err == nil {
 		content, err := os.ReadFile(usernameFile)
@@ -64,7 +83,7 @@ func CMD(args ...string) (bytes.Buffer, error) {
 		args = append([]string{"+login", string(content)}, args...)
 	}
 	log.Println("[SEW] Running steamcmd with args:\n", args)
-	cmd := exec.Command(SteamCMD+"\\steamcmd.exe", args...)
+	cmd := exec.Command(SteamcmdDir+"\\steamcmd.exe", args...)
 	cmd.Stdin = os.Stdin
 
 	// TODO: Parse output incase of upload new item, and get the workshop id
@@ -77,17 +96,18 @@ func CMD(args ...string) (bytes.Buffer, error) {
 	return outputBuffer, cmd.Run()
 }
 
-func Upload(workshopid string, arg string) error {
+func UploadWorkshop(path string, workshopid string) error {
+	SetupSteamcmd()
 	debug.SetTitle("Upload")
 	defer debug.ResetTitle()
 
 	debug.Print("Uploading to workshop ID:", workshopid)
-	debug.Print("Args:", arg)
+	debug.Print("Path:", path)
 
 	debug.Print("Starting for loop")
 
-	debug.Print("Uploading", arg)
-	fullpath, abserr := filepath.Abs(arg)
+	debug.Print("Uploading", path)
+	fullpath, abserr := filepath.Abs(path)
 	if abserr != nil {
 		debug.Print("Failed to get absolute path:", abserr)
 		return abserr
@@ -114,7 +134,7 @@ func Upload(workshopid string, arg string) error {
 			return err
 		}
 		debug.Print("Wrote workshop.vdf to:", vdfpath)
-		CMD("+workshop_build_item", vdfpath, "+quit")
+		Steamcmd("+workshop_build_item", vdfpath, "+quit")
 
 	}
 	return nil
