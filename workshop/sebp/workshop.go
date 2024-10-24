@@ -144,20 +144,21 @@ func fixWorkshopID(path string) string {
 		})
 	}
 
-	// Marshal the updated metadata back to XML
-	updatedContent, err := xml.MarshalIndent(metadata, "", "  ")
-	if err != nil {
-		debug.Print("Error marshalling updated modinfo.sbmi XML:", err)
-		return "0"
-	}
+	// // Marshal the updated metadata back to XML
+	// updatedContent, err := xml.MarshalIndent(metadata, "", "  ")
+	// if err != nil {
+	// 	debug.Print("Error marshalling updated modinfo.sbmi XML:", err)
+	// 	return "0"
+	// }
 
-	// Write the updated content back to modinfo.sbmi
-	err = os.WriteFile(modinfoPath, updatedContent, 0644)
-	if err != nil {
-		debug.Print("Error writing updated modinfo.sbmi file:", err)
-		return "0"
-	}
+	// // Write the updated content back to modinfo.sbmi
+	// err = os.WriteFile(modinfoPath, updatedContent, 0644)
+	// if err != nil {
+	// 	debug.Print("Error writing updated modinfo.sbmi file:", err)
+	// 	return "0"
+	// }
 
+	debug.Print("UPDATING XML HAS BEEN DISBALBED")
 	debug.Print("Successfully updated modinfo.sbmi with Workshop ID:", vdfItem.WorkshopID)
 	return vdfItem.WorkshopID
 }
