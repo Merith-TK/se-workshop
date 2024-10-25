@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	"github.com/Merith-TK/se-workshop/shared"
-	"github.com/Merith-TK/se-workshop/workshop/sebp"
-	"github.com/Merith-TK/se-workshop/workshop/semod"
-	"github.com/Merith-TK/se-workshop/workshop/sescr"
+	"github.com/Merith-TK/se-workshop/utils/sebp"
+	"github.com/Merith-TK/se-workshop/utils/semod"
+	"github.com/Merith-TK/se-workshop/utils/sescr"
 	"github.com/Merith-TK/utils/debug"
 )
 
