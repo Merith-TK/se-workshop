@@ -47,6 +47,8 @@ func main() {
 
 	// Handle the appropriate command based on the first argument
 	switch args[0] {
+	case "arg", "args":
+		debug.Print(args)
 	case "bp", "blueprint", "blueprints", "schematic", "schematics", "schem":
 		debug.Print("Blueprint command detected")
 		sebp.HandleCommand(args[1:])
@@ -73,11 +75,11 @@ func main() {
 
 	case "get-vdf", "getvdf", "vdf":
 		debug.Print("Get-vdf command detected")
-		handleVDFCommand(args)
+		handleVDFCommand(args[1:])
 
 	case "set-id", "setid", "set":
 		debug.Print("Set-id command detected")
-		handleSetIDCommand(args)
+		handleSetIDCommand(args[1:])
 
 	case "fix-contents":
 		debug.Print("Fix-contents command detected")
@@ -85,11 +87,11 @@ func main() {
 
 	case "upload", "update":
 		debug.Print("Upload command detected")
-		handleUploadCommand(args)
+		handleUploadCommand(args[1:])
 
 	case "login":
 		debug.Print("Login command detected")
-		handleLoginCommand(args)
+		handleLoginCommand(args[1:])
 
 	case "vent-steam":
 		debug.Print("Vent-steam command detected")
