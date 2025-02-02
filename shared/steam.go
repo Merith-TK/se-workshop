@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/Merith-TK/se-workshop/vdf"
 	"github.com/Merith-TK/utils/archive"
@@ -122,6 +123,11 @@ func UploadWorkshop(path string, workshopID string) error {
 	debug.Print("Uploading to workshop ID:", workshopID)
 	debug.Print("Path:", path)
 
+	// Process requires folder and not bp.sbc
+	if strings.HasSuffix(path, ".sbc") {
+		path = strings.TrimSuffix(path, "bp.sbc")
+	}
+
 	fullPath, err := filepath.Abs(path)
 	if err != nil {
 		debug.Print("Failed to get absolute path:", err)
@@ -159,6 +165,9 @@ func UploadWorkshop(path string, workshopID string) error {
 			debug.Print("Failed to upload workshop item:", err)
 			return err
 		}
+
+		workshopID := GetWorkshopID(path)
+		fmt.Println("Workshop URL: https://steamcommunity.com/sharedfiles/filedetails/?id=" + workshopID)
 	}
 
 	return nil
