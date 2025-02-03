@@ -29,7 +29,7 @@
 To install `sew`, use the following command:
 
 ```bash
-go install github.com/Merith-TK/se-workshop/cmd/sew@latest
+go install github.com/Merith-TK/se-workshop/cmd/sew@main
 ```
 
 Make sure you have Go installed and properly set up on your system. You can download and install Go from the [official website](https://golang.org/dl/).
