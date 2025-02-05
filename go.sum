@@ -2,3 +2,5 @@ github.com/Merith-TK/utils v0.0.0-20241022045459-1018f4b81f87 h1:z6UI46B9lUzCUAH
 github.com/Merith-TK/utils v0.0.0-20241022045459-1018f4b81f87/go.mod h1:gLvM19iu7i+cnsQMBq98rZa98tv9DCxecmFXuHQS9kc=
 github.com/beevik/etree v1.4.1 h1:PmQJDDYahBGNKDcpdX8uPy1xRCwoCGVUiW669MEirVI=
 github.com/beevik/etree v1.4.1/go.mod h1:gPNJNaBGVZ9AwsidazFZyygnd+0pAU38N4D+WemwKNs=
+github.com/yosuke-furukawa/json5 v0.1.1 h1:0F9mNwTvOuDNH243hoPqvf+dxa5QsKnZzU20uNsh3ZI=
+github.com/yosuke-furukawa/json5 v0.1.1/go.mod h1:sw49aWDqNdRJ6DYUtIQiaA3xyj2IL9tjeNYmX2ixwcU=

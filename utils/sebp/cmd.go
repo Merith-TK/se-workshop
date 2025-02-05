@@ -1,6 +1,9 @@
 package sebp
 
 import (
+	"path/filepath"
+	"strings"
+
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/utils/debug"
 )
@@ -29,7 +32,6 @@ func HandleCommand(args []string) {
 
 	// Extract the command and any additional arguments.
 	command := args[0]
-	args = args[1:]
 
 	// Handle supported commands.
 	switch command {
@@ -40,4 +42,15 @@ func HandleCommand(args []string) {
 		// Print an error message for unknown commands.
 		shared.PrintHelp("BP: Unknown command: " + command)
 	}
+}
+
+func LocateBP(path string) (bool, string) {
+	path = filepath.Clean(path)
+	if strings.HasSuffix(path, ".sbc") {
+		return true, path
+	}
+	if shared.FileExists(path + "\\bp.sbc") {
+		return true, path + "\\bp.sbc"
+	}
+	return false, ""
 }
