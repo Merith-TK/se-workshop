@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Prefabs>
-    <Prefab xsi:type="MyObjectBuilder_PrefabDefinition">
-      <Id Type="MyObjectBuilder_PrefabDefinition" Subtype="OPCRamDropPod" />
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ShipBlueprints>
+    <ShipBlueprint xsi:type="MyObjectBuilder_ShipBlueprintDefinition">
       <CubeGrids>
         <CubeGrid>
           <SubtypeName />
@@ -5789,7 +5789,6 @@
           <TargetingTargets />
         </CubeGrid>
       </CubeGrids>
-      <EnvironmentType>None</EnvironmentType>
-    </Prefab>
-  </Prefabs>
+    </ShipBlueprint>
+  </ShipBlueprints>
 </Definitions>
