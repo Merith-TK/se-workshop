@@ -45,9 +45,9 @@ func handleUploadCommand(args []string) {
 // handleLoginCommand handles the "login" command, logging into Steamcmd and saving the username.
 func handleLoginCommand(args []string) {
 	if len(args) > 2 {
-		shared.Steamcmd("+login", args[1], args[2], "+quit")
+		shared.Steamcmd("+login", args[0], args[1], "+quit")
 	} else {
-		shared.Steamcmd("+login", args[1], "+quit")
+		shared.Steamcmd("+login", args[0], "+quit")
 	}
 	username := flag.Arg(1)
 	filePath := filepath.Join(shared.SteamcmdDir, "username.txt")
