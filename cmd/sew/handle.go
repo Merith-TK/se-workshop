@@ -13,10 +13,10 @@ import (
 
 // handleVDFCommand handles the "get-vdf" command, generating a VDF string for a given workshop item.
 func handleVDFCommand(args []string) {
-	workshopid := shared.GetWorkshopID(args[1])
+	workshopid := shared.GetWorkshopID(args[0])
 	workshopItem := vdf.VDFItem{
 		WorkshopID:    workshopid,
-		ContentFolder: args[1],
+		ContentFolder: args[0],
 	}
 	workshopvdf := vdf.Build(workshopItem)
 	fmt.Println(workshopvdf)

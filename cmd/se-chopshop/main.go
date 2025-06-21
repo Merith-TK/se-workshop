@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"regexp"
 
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/utils/sebp"
 	"github.com/Merith-TK/utils/debug"
 	"github.com/beevik/etree"
+	"github.com/dlclark/regexp2"
 )
 
 var confFile = flag.String("conf", "chopshop.json", "configuration file")
@@ -72,10 +72,10 @@ func chopshop(path string) {
 		for _, mapping := range loadedMap {
 			debug.SetTitle("MAP  ")
 			debug.Print(mapping.Repl)
-			re := regexp.MustCompile(mapping.Repl)
-			if re.MatchString(targetBlock.Text()) {
+			re := regexp2.MustCompile(mapping.Repl, regexp2.RE2)
+			if match, _ := re.MatchString(targetBlock.Text()); match {
 				debug.SetTitle("MATCH")
-				newText := re.ReplaceAllString(targetBlock.Text(), mapping.With)
+				newText, _ := re.Replace(targetBlock.Text(), mapping.With, -1, -1)
 				targetBlock.SetText(newText)
 				Altered++
 				debug.Print(newText)

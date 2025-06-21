@@ -49,8 +49,12 @@ func LocateBP(path string) (bool, string) {
 	if strings.HasSuffix(path, ".sbc") {
 		return true, path
 	}
-	if shared.FileExists(path + "\\bp.sbc") {
-		return true, path + "\\bp.sbc"
+
+	path = strings.Trim(path, "\"")
+
+	bpPath := filepath.Join(path, "bp.sbc")
+	if shared.FileExists(bpPath) {
+		return true, bpPath
 	}
 	return false, ""
 }

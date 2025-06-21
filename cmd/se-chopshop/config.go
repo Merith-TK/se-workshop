@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/utils/debug"
+	"github.com/dlclark/regexp2"
 	json "github.com/yosuke-furukawa/json5/encoding/json5"
 )
 
@@ -40,7 +40,7 @@ func ReadConf(file string) (GridConfig, error) {
 	debug.Print("Config:\n", string(jsonString), "\n")
 
 	for _, mapping := range append(config.SmallGrid, config.LargeGrid...) {
-		if _, err := regexp.Compile(mapping.Repl); err != nil {
+		if _, err := regexp2.Compile(mapping.Repl, regexp2.RE2); err != nil {
 			return GridConfig{}, fmt.Errorf("invalid regex in config: %s, error: %w", mapping.Repl, err)
 		}
 	}
