@@ -1,0 +1,65 @@
+{
+  // Notice: This patches in top-down priority order, so the first match is the one that gets used.
+  "smallgrid": [
+    // Replace Full Armor
+    {
+      "repl": "^SmallBlockArmor(\\w+)",
+      "with": "CAP_Armor$1"
+    },
+    {
+      "repl": "^SmallHeavyBlockArmor(\\w+)",
+      "with": "CAP_Armor$1"
+    },
+
+    // Match Replace Half Armor
+    {
+      "repl": "^Half(\\w+)",
+      "with": "CAP_Half$1"
+    },
+    {
+      "repl": "^HeavyHalf(\\w+)",
+      "with": "CAP_Half$1"
+    },
+
+    // Replace Conveyor Tubes
+    {
+      "repl": "ConveyorTubeSmall(\\w+)",
+      "with": "LXN_SmallConveyor_Junction"
+    },
+    {
+      "repl": "ConveyorTubeSmall",
+      "with": "LXN_SmallConveyor_Straight"
+    },
+    // Replace Conveyor Blocks (excluding Converter)
+    {
+      "repl": "SmallBlockConveyor(?!Converter$)\\w+",
+      "with": "LXN_SmallConveyor_Junction"
+    },
+    {
+      "repl": "^SmallBlockConveyor$",
+      "with": "LXN_SmallConveyor_Junction"
+    },
+
+    // Replace Reinforced Conveyor Tubes
+    {
+      "repl": "ConveyorTubeDuctSmall(\\w+)",
+      "with": "LXN_SmallConveyor_Junction"
+    },
+    {
+      "repl": "^ConveyorTubeDuctSmall$",
+      "with": "LXN_SmallConveyor_Straight"
+    },
+
+    // Replace Batteries
+    {
+      "repl": "SmallBlockSmallBatteryBlock",
+      "with": "KGS_Battery_EC20"
+    },
+    // Remove Thrusters
+    {
+      "repl": "SmallBlock(?:Small|Large)(?:ModularThruster|Thrust(?:SciFi)?)",
+      "with": "WAVEBREAKER_NO_THRUSTERS"
+    }
+  ],
+  "largegrid": []
+}

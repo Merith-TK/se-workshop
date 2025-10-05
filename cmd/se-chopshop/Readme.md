@@ -25,3 +25,4 @@ Place the config in `chopshop.json` next to your blueprints like so
 
 and then drag and drop the desired blueprint's folder onto the exe,  like so, ![alt text](.readme/image.gif),
 
+There is a set of default jsons 
