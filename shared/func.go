@@ -57,6 +57,8 @@ func PrintHelp(msg string) {
 	println("        Run SteamCMD directly with the given arguments")
 	println("    vent-steam")
 	println("        Restart Steam (fixes offline status after using SteamCMD)")
+	println("    help, ?")
+	println("        Show this help message")
 	println()
 	println("EXAMPLES:")
 	println("  sew login myusername")
