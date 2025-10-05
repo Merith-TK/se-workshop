@@ -52,7 +52,7 @@ func LocateBP(path string) (bool, string) {
 
 	path = strings.Trim(path, "\"")
 
-	bpPath := filepath.Join(path, "bp.sbc")
+	bpPath := filepath.Join(path, shared.BlueprintFileName)
 	if shared.FileExists(bpPath) {
 		return true, bpPath
 	}

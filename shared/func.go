@@ -3,6 +3,7 @@ package shared
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/Merith-TK/se-workshop/vdf"
@@ -20,14 +21,52 @@ func FileExists(path string) bool {
 // If msg is not empty, it will be printed before the usage instructions.
 func PrintHelp(msg string) {
 	if msg != "" {
-		println(msg)
+		println("Error:", msg)
+		println()
 	}
-	println("Usage: se-workshop <command> [args...]")
-	println("Commands:")
-	println("  build-vdf <path> - Build a VDF file for the provided blueprint path")
-	println("  folder - Print the current blueprint directory")
-	println("  get-id <path> - Get the workshop ID for the provided blueprint path")
-	println("This is an incomplete help message.")
+	
+	println("sew - Space Engineers Workshop Tool")
+	println("A command-line tool for managing Steam Workshop items for Space Engineers")
+	println()
+	println("USAGE:")
+	println("  sew <command> [args...]")
+	println()
+	println("COMMANDS:")
+	println()
+	println("  Authentication:")
+	println("    login <username> [password] [steamauth]")
+	println("        Log into SteamCMD (required before uploading)")
+	println("        Password and steam auth are optional - will prompt if needed")
+	println()
+	println("  Workshop Management:")
+	println("    upload [path]")
+	println("        Upload or update a workshop item (uses current dir if no path)")
+	println("    download <workshop_id>")
+	println("        Download a workshop item (e.g: sew download 123456789)")
+	println("    get-id [path]")
+	println("        Get the workshop URL for an item (uses current dir if no path)")
+	println("    set-id <path> <workshop_id>")
+	println("        Set the workshop ID for a blueprint or mod")
+	println()
+	println("  Blueprint Commands:")
+	println("    bp folder")
+	println("        Show the path to your local blueprints folder")
+	println()
+	println("  Utility Commands:")
+	println("    cmd <args...>")
+	println("        Run SteamCMD directly with the given arguments")
+	println("    vent-steam")
+	println("        Restart Steam (fixes offline status after using SteamCMD)")
+	println()
+	println("EXAMPLES:")
+	println("  sew login myusername")
+	println("  sew upload C:\\path\\to\\blueprint")
+	println("  sew download 123456789")
+	println("  sew get-id .")
+	println("  sew set-id . 123456789")
+	println("  sew bp folder")
+	println()
+	println("For more information, see: https://github.com/Merith-TK/se-workshop")
 }
 
 // PWD returns the current working directory.
@@ -51,12 +90,12 @@ func GetWorkshopID(path string) string {
 	// Handle different file types and adjust path accordingly
 	if !strings.HasSuffix(path, ".sbc") && !strings.HasSuffix(path, ".sbmi") {
 		switch {
-		case FileExists(path + "\\workshop.vdf"):
-			path = path + "\\workshop.vdf"
-		case FileExists(path + "\\modinfo.sbmi"):
-			path = path + "\\modinfo.sbmi"
-		case FileExists(path + "\\bp.sbc"):
-			path = path + "\\bp.sbc"
+		case FileExists(filepath.Join(path, WorkshopVDFFileName)):
+			path = filepath.Join(path, WorkshopVDFFileName)
+		case FileExists(filepath.Join(path, ModInfoFileName)):
+			path = filepath.Join(path, ModInfoFileName)
+		case FileExists(filepath.Join(path, BlueprintFileName)):
+			path = filepath.Join(path, BlueprintFileName)
 		default:
 			debug.Print("Invalid path:", path)
 			return "0"
@@ -70,7 +109,7 @@ func GetWorkshopID(path string) string {
 	}
 
 	// Handle VDF files
-	if strings.HasSuffix(path, "workshop.vdf") {
+	if strings.HasSuffix(path, WorkshopVDFFileName) {
 		debug.Print("Reading VDF file:", path)
 		vdfContent, err := vdf.Read(path)
 		if err != nil {
@@ -93,8 +132,8 @@ func GetWorkshopID(path string) string {
 	}
 
 	// Fallback to checking for a VDF file in the current directory
-	if FileExists("workshop.vdf") {
-		vdfContent, err := vdf.Read("workshop.vdf")
+	if FileExists(WorkshopVDFFileName) {
+		vdfContent, err := vdf.Read(WorkshopVDFFileName)
 		if err != nil {
 			debug.Print("Error reading VDF file:", err)
 			return "0"
@@ -109,10 +148,10 @@ func GetWorkshopID(path string) string {
 // The path can be a modinfo file (.sbmi) or a blueprint file (.sbc).
 func SetWorkshopID(path string, workshopID string) {
 	if !strings.HasSuffix(path, ".sbc") && !strings.HasSuffix(path, ".sbmi") {
-		if FileExists(path + "\\modinfo.sbmi") {
-			path = path + "\\modinfo.sbmi"
-		} else if FileExists(path + "\\bp.sbc") {
-			path = path + "\\bp.sbc"
+		if FileExists(filepath.Join(path, ModInfoFileName)) {
+			path = filepath.Join(path, ModInfoFileName)
+		} else if FileExists(filepath.Join(path, BlueprintFileName)) {
+			path = filepath.Join(path, BlueprintFileName)
 		} else {
 			debug.Print("Invalid path:", path)
 			return

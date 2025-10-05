@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,15 +27,36 @@ func handleSetIDCommand(args []string) {
 		shared.PrintHelp("BP: set-id requires a path and a workshop ID")
 		return
 	}
-	if !strings.HasSuffix(args[0], ".sbc") {
-		args[0] = args[0] + "\\bp.sbc"
+
+	// Validate workshop ID
+	if err := shared.ValidateWorkshopID(args[1]); err != nil {
+		fmt.Printf("Invalid workshop ID: %v\n", err)
+		return
 	}
-	shared.SetWorkshopID(args[0], args[1])
+
+	// Sanitize and validate path
+	path := shared.SanitizePath(args[0])
+	if err := shared.ValidateFilePath(path); err != nil {
+		fmt.Printf("Invalid file path: %v\n", err)
+		return
+	}
+
+	if !strings.HasSuffix(path, ".sbc") {
+		path = filepath.Join(path, shared.BlueprintFileName)
+	}
+	shared.SetWorkshopID(path, args[1])
 }
 
 // handleUploadCommand handles the "upload" or "update" commands, uploading the workshop item.
 func handleUploadCommand(args []string) {
-	err := shared.UploadWorkshop(args[0], shared.GetWorkshopID(args[0]))
+	// Sanitize and validate path
+	path := shared.SanitizePath(args[0])
+	if err := shared.ValidateFilePath(path); err != nil {
+		fmt.Printf("Invalid file path: %v\n", err)
+		return
+	}
+
+	err := shared.UploadWorkshop(path, shared.GetWorkshopID(path))
 	if err != nil {
 		fmt.Println("Failed to upload blueprint: " + err.Error())
 	}
@@ -44,22 +64,35 @@ func handleUploadCommand(args []string) {
 
 // handleLoginCommand handles the "login" command, logging into Steamcmd and saving the username.
 func handleLoginCommand(args []string) {
+	if len(args) < 1 {
+		shared.PrintHelp("Login requires at least a username")
+		return
+	}
+
+	// Validate username
+	if err := shared.ValidateUsername(args[0]); err != nil {
+		fmt.Printf("Invalid username: %v\n", err)
+		return
+	}
+
 	if len(args) > 2 {
 		shared.Steamcmd("+login", args[0], args[1], "+quit")
 	} else {
 		shared.Steamcmd("+login", args[0], "+quit")
 	}
-	username := flag.Arg(1)
-	filePath := filepath.Join(shared.SteamcmdDir, "username.txt")
+
+	username := args[0]
+	filePath := filepath.Join(shared.SteamcmdDir, shared.UsernameFileName)
 	file, err := os.Create(filePath)
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error creating username file: %v\n", err)
+		return
 	}
 	defer file.Close()
 
 	_, err = file.WriteString(username)
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error writing username: %v\n", err)
 	}
 }
 

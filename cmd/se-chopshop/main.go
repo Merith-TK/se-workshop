@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/Merith-TK/se-workshop/shared"
 	"github.com/Merith-TK/se-workshop/utils/sebp"
@@ -16,11 +17,12 @@ var Config GridConfig
 
 func main() {
 	flag.Parse()
-	if *confFile != "" || !shared.FileExists(*confFile) {
+	if *confFile != "" && shared.FileExists(*confFile) {
 		var err error
 		Config, err = ReadConf(*confFile)
 		if err != nil {
-			panic(err)
+			fmt.Printf("Error reading config file: %v\n", err)
+			os.Exit(1)
 		}
 	}
 

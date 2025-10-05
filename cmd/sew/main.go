@@ -67,11 +67,28 @@ func main() {
 
 	case "download", "dl":
 		debug.Print("Download command detected")
+		if len(args) < 2 {
+			shared.PrintHelp("Download requires a workshop ID")
+			return
+		}
+		if err := shared.ValidateWorkshopID(args[1]); err != nil {
+			fmt.Printf("Invalid workshop ID: %v\n", err)
+			return
+		}
 		shared.Steamcmd("+workshop_download_item", "244850", args[1], "+quit")
 
 	case "get-id", "getid", "get", "id":
 		debug.Print("Get-id command detected")
-		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + shared.GetWorkshopID(args[1]))
+		if len(args) < 2 {
+			shared.PrintHelp("Get-id requires a path")
+			return
+		}
+		path := shared.SanitizePath(args[1])
+		if err := shared.ValidateFilePath(path); err != nil {
+			fmt.Printf("Invalid file path: %v\n", err)
+			return
+		}
+		fmt.Println("https://steamcommunity.com/sharedfiles/filedetails/?id=" + shared.GetWorkshopID(path))
 
 	case "get-vdf", "getvdf", "vdf":
 		debug.Print("Get-vdf command detected")
@@ -96,6 +113,10 @@ func main() {
 	case "vent-steam":
 		debug.Print("Vent-steam command detected")
 		handleVentSteamCommand()
+
+	case "help", "-h", "--help", "?":
+		debug.Print("Help command detected")
+		shared.PrintHelp("")
 
 	default:
 		debug.Print("Unknown command detected")

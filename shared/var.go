@@ -1,6 +1,9 @@
 package shared
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+)
 
 type ConstantsType struct {
 	Appdata string
@@ -15,18 +18,19 @@ type ConstantsType struct {
 var Constants ConstantsType
 
 func init() {
+	appdata := os.Getenv("APPDATA")
 	Constants = ConstantsType{
-		Appdata: os.Getenv("APPDATA") + "\\SpaceEngineers\\",
+		Appdata: filepath.Join(appdata, "SpaceEngineers") + string(filepath.Separator),
 		Dir: struct {
 			BP     string
 			Mod    string
 			Saves  string
 			Script string
 		}{
-			BP:     os.Getenv("APPDATA") + "\\SpaceEngineers\\Blueprints\\local\\",
-			Mod:    os.Getenv("APPDATA") + "\\SpaceEngineers\\IngameScripts\\local\\",
-			Saves:  os.Getenv("APPDATA") + "\\SpaceEngineers\\Saves\\",
-			Script: os.Getenv("APPDATA") + "\\SpaceEngineers\\Scripts\\",
+			BP:     filepath.Join(appdata, "SpaceEngineers", "Blueprints", "local") + string(filepath.Separator),
+			Mod:    filepath.Join(appdata, "SpaceEngineers", "IngameScripts", "local") + string(filepath.Separator),
+			Saves:  filepath.Join(appdata, "SpaceEngineers", "Saves") + string(filepath.Separator),
+			Script: filepath.Join(appdata, "SpaceEngineers", "Scripts") + string(filepath.Separator),
 		},
 	}
 }

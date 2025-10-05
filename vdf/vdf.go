@@ -47,10 +47,10 @@ func Build(item VDFItem) string {
 
 	// Set default values if not provided
 	if item.AppID == "" {
-		item.AppID = "244850"
+		item.AppID = "244850" // Space Engineers app ID
 	}
 	if item.Visibility == "" {
-		item.Visibility = "0"
+		item.Visibility = "0" // Default to public
 	}
 	if item.PreviewFile == "" {
 		item.PreviewFile = filepath.Join(absPath, "thumb.png")

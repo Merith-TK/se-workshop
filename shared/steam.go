@@ -18,7 +18,7 @@ import (
 
 // SteamcmdDir is the path where SteamCMD is installed.
 var (
-	SteamcmdDir = os.Getenv("APPDATA") + "\\SpaceEngineers\\.steamcmd"
+	SteamcmdDir = filepath.Join(os.Getenv("APPDATA"), "SpaceEngineers", ".steamcmd")
 )
 
 // StartSteamClient launches the Steam client using a command-line call.
@@ -86,7 +86,7 @@ func Steamcmd(args ...string) (bytes.Buffer, error) {
 	debug.SetTitle("CMD")
 	defer debug.ResetTitle()
 
-	usernameFile := filepath.Join(SteamcmdDir, "username.txt")
+	usernameFile := filepath.Join(SteamcmdDir, UsernameFileName)
 	outputBuffer := bytes.Buffer{}
 
 	// Append login details if username.txt exists
@@ -151,7 +151,7 @@ func UploadWorkshop(path string, workshopID string) error {
 		}
 
 		// Write workshop.vdf to the content folder
-		vdfPath := filepath.Join(fullPath, "workshop.vdf")
+		vdfPath := filepath.Join(fullPath, WorkshopVDFFileName)
 		if err := os.WriteFile(vdfPath, []byte(vdf.Build(vdfItem)), 0644); err != nil {
 			debug.Print("Failed to write workshop.vdf:", err)
 			return err
