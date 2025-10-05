@@ -47,13 +47,25 @@ func Build(item VDFItem) string {
 
 	// Set default values if not provided
 	if item.AppID == "" {
-		item.AppID = "244850" // Space Engineers app ID
+		item.AppID = "244850"
 	}
 	if item.Visibility == "" {
-		item.Visibility = "0" // Default to public
+		item.Visibility = "0"
 	}
 	if item.PreviewFile == "" {
-		item.PreviewFile = filepath.Join(absPath, "thumb.png")
+		// Check for common preview file names
+		previewFiles := []string{"thumb.png", "thumb.jpg", "thumb.jpeg", "preview.png", "preview.jpg"}
+		for _, filename := range previewFiles {
+			previewPath := filepath.Join(absPath, filename)
+			if _, err := os.Stat(previewPath); err == nil {
+				item.PreviewFile = previewPath
+				break
+			}
+		}
+		// Default to thumb.png if no preview file found
+		if item.PreviewFile == "" {
+			item.PreviewFile = filepath.Join(absPath, "thumb.png")
+		}
 	}
 	if item.WorkshopID == "" {
 		return ""
