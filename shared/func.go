@@ -24,7 +24,7 @@ func PrintHelp(msg string) {
 		println("Error:", msg)
 		println()
 	}
-	
+
 	println("sew - Space Engineers Workshop Tool")
 	println("A command-line tool for managing Steam Workshop items for Space Engineers")
 	println()
@@ -59,6 +59,10 @@ func PrintHelp(msg string) {
 	println("        Restart Steam (fixes offline status after using SteamCMD)")
 	println("    help, ?")
 	println("        Show this help message")
+	if debug.GetDebug() {
+		println("    debug-help")
+		println("        Show detailed debug commands and flags")
+	}
 	println()
 	println("EXAMPLES:")
 	println("  sew login myusername")
@@ -68,7 +72,88 @@ func PrintHelp(msg string) {
 	println("  sew set-id . 123456789")
 	println("  sew bp folder")
 	println()
+
+	// Only show debug commands if debug mode is enabled
+	if debug.GetDebug() {
+		println("DEBUG COMMANDS:")
+		println("  get-vdf, vdf <path>")
+		println("        Generate and display VDF file content without uploading")
+		println("  fix-contents <path>")
+		println("        Fix workshop ID consistency across all metadata files")
+		println("  arg, args [args...]")
+		println("        Debug command - show how arguments are parsed")
+		println()
+		println("DEBUG FLAGS:")
+		println("  -debug              Enable debug output")
+		println("  -stacktrace         Enable stacktrace output")
+		println("  -suicide            Enable suicide mode (auto-exit after timeout)")
+		println("  Environment: DEBUG=true, STACKTRACE=true, SUICIDE=true")
+		println()
+		println("  For detailed debug help: sew debug-help")
+		println()
+	}
+
 	println("For more information, see: https://github.com/Merith-TK/se-workshop")
+}
+
+// PrintDebugHelp prints detailed help for debug commands and flags.
+func PrintDebugHelp() {
+	println("sew - Debug Commands and Flags")
+	println("Advanced debugging and troubleshooting commands for developers")
+	println()
+	println("DEBUG COMMANDS:")
+	println()
+	println("  get-vdf, getvdf, vdf <path>")
+	println("        Generate and display VDF file content without uploading")
+	println("        Useful for debugging workshop metadata before upload")
+	println("        Example: sew get-vdf ./my-blueprint")
+	println()
+	println("  fix-contents <path>")
+	println("        Fix workshop ID consistency across metadata files")
+	println("        Reads workshop ID from one source and updates all files")
+	println("        Example: sew fix-contents ./my-mod")
+	println()
+	println("  arg, args [args...]")
+	println("        Debug argument parsing - shows how sew interprets arguments")
+	println("        Useful for troubleshooting command-line issues")
+	println("        Example: sew args upload \"My Blueprint\" 123456")
+	println()
+	println("DEBUG FLAGS:")
+	println()
+	println("  -debug")
+	println("        Enable debug output showing internal operations")
+	println("        Shows file operations, steamcmd commands, etc.")
+	println("        Example: sew -debug upload ./my-mod")
+	println()
+	println("  -stacktrace")
+	println("        Enable stacktrace output in debug messages")
+	println("        Shows function call stack for debugging crashes")
+	println("        Example: sew -debug -stacktrace upload ./my-mod")
+	println()
+	println("  -suicide")
+	println("        Enable suicide mode - auto-exit after timeout")
+	println("        Prevents runaway processes during testing")
+	println("        Example: sew -suicide upload ./my-mod")
+	println()
+	println("ENVIRONMENT VARIABLES:")
+	println("  Alternative to command-line flags:")
+	println("    DEBUG=true sew upload ./my-mod")
+	println("    STACKTRACE=true sew upload ./my-mod")
+	println("    SUICIDE=true sew upload ./my-mod")
+	println()
+	println("DEBUG EXAMPLES:")
+	println("  # Debug VDF generation")
+	println("  sew get-vdf ./my-blueprint")
+	println()
+	println("  # Debug upload with full output")
+	println("  sew -debug -stacktrace upload ./my-mod")
+	println()
+	println("  # Fix metadata consistency")
+	println("  sew fix-contents ./broken-blueprint")
+	println()
+	println("  # Debug argument parsing")
+	println("  sew args upload \"C:\\My Blueprints\\Ship\" 123456")
+	println()
 }
 
 // PWD returns the current working directory.
@@ -191,7 +276,7 @@ func CleanXML(content string) string {
 	// Trim trailing whitespace and normalize line endings
 	lines := strings.Split(content, "\n")
 	for i, line := range lines {
-		lines[i] = strings.TrimRight(line, " \t\r ")
+		lines[i] = strings.TrimRight(line, " \t\r")
 	}
 	updatedXML := strings.Join(lines, "\n")
 	updatedXML = strings.ReplaceAll(updatedXML, "&#xA;", "")

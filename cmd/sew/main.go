@@ -118,6 +118,10 @@ func main() {
 		debug.Print("Help command detected")
 		shared.PrintHelp("")
 
+	case "debug-help", "debughelp", "debug-commands":
+		debug.Print("Debug help command detected")
+		shared.PrintDebugHelp()
+
 	default:
 		debug.Print("Unknown command detected")
 		shared.PrintHelp("Unknown command: " + args[0])
