@@ -1,6 +1,25 @@
-This Mod Does Not Exist
-This Mod is a republish of the RAM Respawn pod
-It *should not* be visible, if it is, disregard
+OPC Ram - SpawnPod
+[img]https://i.imgur.com/m5SKlFV.png[/img]
 
-This is republished with permission from Foltast, 
-Original Mod located here: https://steamcommunity.com/sharedfiles/filedetails/?id=2896414895
+
+[img]https://i.imgur.com/oeh8FOd.png[/img]
+
+Ram-class rovers were developed by the Outer Planet Consolidation at the dawn of its expansion into the Unknown Region. The main purpose of these vehicles was to provide the first wave of colonists with safe shelter and the minimum tools that would be needed to build the first phase of the colony.
+
+Over time, this transport ceased to be in demand due to the emergence of more advanced vehicles and ships like the ARK class colonial shuttles, and the remaining Ram was decided to be sold on foreign markets.
+
+
+[img]https://i.imgur.com/eMs1Nab.png[/img]
+
+A small rover for spawning on planets such as EarthLike, Mars, Alien.  
+Suitable for first steps when starting a new game.  
+Used as a spawn pod on my server for a while.  
+
+[b]Contains:[/b]  
+• Ore detector  
+• Survival kit  
+• Solar panels  
+• O2/H2 generator  
+• Fuel/oxygen stockpile  
+
+You can use this mod in your server mods — just provide the link to the original mod!
